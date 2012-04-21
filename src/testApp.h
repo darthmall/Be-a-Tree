@@ -1,7 +1,8 @@
 #ifndef _TEST_APP
 #define _TEST_APP
 
-#include "ofxOpenCv.h"
+#include "ofxCv.h"
+//#include "ofxCvContourSimplify.h"
 #include "ofxOpenNI.h"
 #include "ofMain.h"
 #include "twig.h"
@@ -23,6 +24,7 @@ public:
 	void mouseReleased(int x, int y, int button);
 	void windowResized(int w, int h);
 
+    void stickman(ofxOpenNIUser user);
     void userEvent(ofxOpenNIUserEvent & event);
 
 private:
@@ -30,6 +32,10 @@ private:
 
 	ofxOpenNI kinect;
     vector<XnUserID> userIds;
+
+    ofxCv::ContourFinder contourFinder;
+    ofImage image;
+    int blobCount;
 
     ofTrueTypeFont verdana;
     twig *root;

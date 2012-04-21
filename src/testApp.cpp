@@ -5,11 +5,12 @@
 void testApp::setup() {
     
     ofSetLogLevel(OF_LOG_NOTICE);
-    debugMode = false;
+    debugMode = true;
 
     kinect.setup();
     kinect.addDepthGenerator();
     kinect.addUserGenerator();
+    kinect.addImageGenerator();
     kinect.setRegister(true);
     kinect.setMirror(true);
     kinect.start();
@@ -22,49 +23,104 @@ void testApp::setup() {
 
     kinect.setUseMaskTextureAllUsers(true);
 
-    verdana.loadFont(ofToDataPath("verdana.ttf"), 24);
-    
+    verdana.loadFont(ofToDataPath("verdana.ttf"), 18);
+
+    image.allocate(640, 480, OF_IMAGE_GRAYSCALE);
+
     root = new twig(0, 30, 0);
 }
 
-//--------------------------------------------------------------
+//------------------------------------------------------------
 void testApp::update(){
-    ofBackground(255, 255, 255);
+    ofBackground(178, 178, 178);
     kinect.update();
 
-    if (root->count() < 500) {
-        root->grow(0.2, 0.001, 5);
+    if (kinect.isNewFrame()) {
+        for (int i = 0; i < kinect.getNumTrackedUsers(); i++) {
+            ofxOpenNIUser user = kinect.getTrackedUser(i);
+            ofPixels pixels = user.getMaskPixels();
+            
+            if (pixels.getWidth() > 0 && pixels.getHeight() > 0) {
+                image.setFromPixels(pixels);
+                contourFinder.findContours(image);
+            } else {
+                ofLogNotice() << "Mask pixels:" << pixels.getWidth() << pixels.getHeight() << pixels.getImageType();
+            }
+        }        
     }
 }
 
 //--------------------------------------------------------------
 void testApp::draw(){
-    ofPushMatrix();
 
     if (debugMode) {
-        kinect.drawDebug();
-        ofSetColor(0, 255, 0);
-        string msg = " MILLIS: " + ofToString(ofGetElapsedTimeMillis()) + " FPS: " + ofToString(ofGetFrameRate());
-        verdana.drawString(msg, 20, 506);
-    }
-
-    ofPopMatrix();
-    
-    for (int i = 0; i < kinect.getNumTrackedUsers(); i++) {
-        ofxOpenNIUser user = kinect.getTrackedUser(i);
-        user.drawSkeleton();
+        float y = 2 * ofGetHeight() - kinect.getHeight();
+        ofPushMatrix();
+        ofScale(0.5, 0.5);
+        ofTranslate(0, y);
         
-        ofxOpenNIJoint elbow = user.getJoint(JOINT_RIGHT_ELBOW);
-        ofxOpenNIJoint hand = user.getJoint(JOINT_RIGHT_HAND);
-        ofPoint handPos = hand.getProjectivePosition();
-        ofPoint elbowPos = elbow.getProjectivePosition();
-        float slope = (handPos.y - elbowPos.y) / (handPos.x - elbowPos.x);
-        float angle = ofRadToDeg(atan(slope));
-
-        root->draw(hand.getProjectivePosition().x, hand.getProjectivePosition().y, angle + 90);
+        kinect.drawDepth();
+        image.draw(640, 0);
+        ofTranslate(640*2, 0);
+        contourFinder.draw();
+        
+        ofPopMatrix();
+        ofPushStyle();
+        ofSetColor(255, 255, 255);
+        
+        if (kinect.getNumTrackedUsers() > 0) {
+            ofxOpenNIUser user = kinect.getTrackedUser(0);
+            ofPixels pix = user.getMaskPixels();
+            verdana.drawString("Mask: " + ofToString(pix.getWidth()) + ", " + ofToString(pix.getHeight()) + " " + ofToString(pix.getImageType()), 650, 48);
+        }
+        
+        verdana.drawString("Kinect: " + ofToString(kinect.getWidth()) + ", " + ofToString(kinect.getHeight()), 650, 24);
+        ofPopStyle();
     }
+    
+    ofSetColor(255, 255, 255);
+    ofRect(0, 0, 640, 480);
+
+//    if (kinect.getNumTrackedUsers() > 0) {
+//        for (int j = 0; j < blobCount; j++) {
+//            int contourLength = contourFinder.blobs[j].pts.size();
+//            vector<ofPoint> original;
+//            vector<ofPoint> simplified;
+//            
+//            original.assign(contourLength, ofPoint());
+//            simplified.assign(contourLength, ofPoint());
+//            
+//            for (int k = 0; k < contourLength; k++) {
+//                original[k] = contourFinder.blobs[j].pts[k];
+//            }
+//            
+//            contourSimplifier.simplify(original, simplified, 0.001);
+//            
+//            ofSetLineWidth(0.25);
+//            ofSetColor(0, 0, 0);
+//            ofBeginShape();
+//            for (int k = 0; k < simplified.size(); k++) {
+//                ofVertex(simplified[k].x, simplified[k].y);
+//            }
+//            ofEndShape();
+//        }
+//    }
 }
 
+void testApp::stickman(ofxOpenNIUser user) {
+    ofPushStyle();
+    ofSetHexColor(0x000000);
+    
+    for (int i = 0; i < user.getNumLimbs(); i++) {
+        ofxOpenNILimb limb = user.getLimb((Limb) i);
+        ofPoint start = limb.getStartJoint().getProjectivePosition();
+        ofPoint end = limb.getEndJoint().getProjectivePosition();
+        
+        ofLine(start, end);
+    }
+    
+    ofPopStyle();
+}
 
 //--------------------------------------------------------------
 void testApp::userEvent(ofxOpenNIUserEvent & event){
@@ -92,7 +148,7 @@ void testApp::userEvent(ofxOpenNIUserEvent & event){
 void testApp::exit(){
     // this often does not work -> it's a known bug -> but calling it on a key press or anywhere that isnt std::aexit() works
     // press 'x' to shutdown cleanly...
-    kinect.stop();
+//    kinect.stop();
 }
 
 //--------------------------------------------------------------
@@ -114,6 +170,7 @@ void testApp::keyPressed(int key){
         case '5':
             cloudRes = 5;
             break;
+        
         case 'i':
             if (kinect.isImageOn()){
                 kinect.removeImageGenerator();
@@ -123,8 +180,13 @@ void testApp::keyPressed(int key){
                 kinect.addImageGenerator();
             }
             break;
+        
         case 'b':
             kinect.setUseBackBuffer(!kinect.getUseBackBuffer());
+            break;
+
+        case 'x':
+            kinect.stop();
             break;
             
         case OF_KEY_BACKSPACE:
@@ -135,8 +197,6 @@ void testApp::keyPressed(int key){
         default:
             break;
     }
-    
-    kinect.setPointCloudResolutionAllUsers(cloudRes);
 }
 
 //--------------------------------------------------------------
