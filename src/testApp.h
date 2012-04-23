@@ -1,11 +1,11 @@
 #ifndef _TEST_APP
 #define _TEST_APP
 
-#include "ofxCv.h"
-//#include "ofxCvContourSimplify.h"
+#include "ofxBox2d.h"
 #include "ofxOpenNI.h"
 #include "ofMain.h"
-#include "twig.h"
+#include "ofxUI.h"
+#include "ent.h"
 
 class testApp : public ofBaseApp {
 
@@ -24,21 +24,21 @@ public:
 	void mouseReleased(int x, int y, int button);
 	void windowResized(int w, int h);
 
-    void stickman(ofxOpenNIUser user);
     void userEvent(ofxOpenNIUserEvent & event);
+    void guiEvent(ofxUIEventArgs & event);
 
 private:
+
+    bool armsRaised(ofxOpenNIUser user);
+    float limbAngle(ofxOpenNILimb limb);
+
     bool debugMode;
-
-	ofxOpenNI kinect;
-    vector<XnUserID> userIds;
-
-    ofxCv::ContourFinder contourFinder;
-    ofImage image;
-    int blobCount;
-
     ofTrueTypeFont verdana;
-    twig *root;
+    ofxUICanvas *gui;
+
+    ent *e;
+	ofxOpenNI kinect;
+    bool kinectOn;
 };
 
 #endif

@@ -13,23 +13,54 @@
 
 class twig {
 public:
-    twig(float angle, float length, int depth);
+    twig(float angle,
+         float length,
+         float p_grow,
+         float p_bifurcate,
+         float thickness_factor,
+         float min_length,
+         float max_length,
+         float max_size);
     ~twig();
     
-    void grow(float p_grow, float p_bifurcate, float l_bifurcate);
+    void grow();
     void draw(float x, float y, float rotation);
     void draw(float x, float y);
     void clear();
-    int height();
-    int count();
+    int depth();
+    int size();
+
+    void setPGrow(float p);
+    float getPGrow();
     
-protected:
+    void setPBifurcate(float p);
+    float getPBifurcate();
+    
+    void setThicknessFactor(float factor);
+    float getThicknessFactor();
+    
+    void setMinLength(float l);
+    float getMinLength();
+    
+    void setMaxLength(float l);
+    float getMaxLength();
+    
+    void setMaxSize(float s);
+    float getMaxSize();
+    
+    
+protected:    
+    float p_grow;
+    float p_bifurcate;
+    float thickness_factor;
+    float min_length;
+    float max_length;
     float angle;
     float length;
-    int depth;
-    bool bifurcated;
+    float max_size;
 
-    vector<twig*> children;
+    twig *left;
+    twig *right;
 };
 
 

@@ -1,6 +1,13 @@
 #include "testApp.h"
 #include <cmath>
 
+#define TWIG_MAX_SIZE 33
+#define TWIG_MIN_LENGTH 20
+#define TWIG_MAX_LENGTH 50
+#define P_BIFURCATE 0.1
+#define P_GROW 0.15
+#define THICKNESS 3 
+
 //--------------------------------------------------------------
 void testApp::setup() {
     
@@ -13,113 +20,93 @@ void testApp::setup() {
     kinect.addImageGenerator();
     kinect.setRegister(true);
     kinect.setMirror(true);
-    kinect.start();
-    
-    // NB: Only one device can have a user generator at a time - this is a known bug in NITE due to a singleton issue
-    // so it's safe to assume that the fist device to ask (ie., deviceID == 0) will have the user generator...
-    
-    kinect.setMaxNumUsers(1); // defualt is 4
+
+    kinect.setMaxNumUsers(1); // default is 4
+
     ofAddListener(kinect.userEvent, this, &testApp::userEvent);
 
-    kinect.setUseMaskTextureAllUsers(true);
+    // Set up GUI for tweaking parameters.
+    float canvasW = ofGetWidth() - 640;
+    float widgetW = canvasW - OFX_UI_GLOBAL_PADDING * 2;
+    gui = new ofxUICanvas(640, 0, canvasW, ofGetHeight());
+    gui->setColorBack(0xaaaaaa);
+    gui->addWidgetDown(new ofxUILabel("Tree Skeleton", OFX_UI_FONT_LARGE));
+    gui->addWidgetDown(new ofxUISlider(widgetW, 10, 0, 1, P_GROW, "GROW RATE"));
+    gui->addWidgetDown(new ofxUISlider(widgetW, 10, 0, 0.3, P_BIFURCATE, "BIFURCATE RATE"));
+    gui->addWidgetDown(new ofxUISlider(widgetW, 10, 1, 10, THICKNESS, "THICKNESS"));
+    gui->addWidgetDown(new ofxUISlider(widgetW, 10, 10, 60, TWIG_MIN_LENGTH, "MIN LENGTH"));
+    gui->addWidgetDown(new ofxUISlider(widgetW, 10, 15, 60, TWIG_MAX_LENGTH, "MAX LENGTH"));
+    gui->addWidgetDown(new ofxUISlider(widgetW, 10, 10, 500, TWIG_MAX_SIZE, "MAX SIZE"));
+    
+    ofAddListener(gui->newGUIEvent, this, &testApp::guiEvent);
 
     verdana.loadFont(ofToDataPath("verdana.ttf"), 18);
-
-    image.allocate(640, 480, OF_IMAGE_GRAYSCALE);
-
-    root = new twig(0, 30, 0);
+    
+    e = new ent(P_GROW, P_BIFURCATE, THICKNESS, TWIG_MIN_LENGTH, TWIG_MAX_SIZE, TWIG_MAX_SIZE);
 }
 
 //------------------------------------------------------------
 void testApp::update(){
     ofBackground(178, 178, 178);
-    kinect.update();
-
-    if (kinect.isNewFrame()) {
-        for (int i = 0; i < kinect.getNumTrackedUsers(); i++) {
-            ofxOpenNIUser user = kinect.getTrackedUser(i);
-            ofPixels pixels = user.getMaskPixels();
-            
-            if (pixels.getWidth() > 0 && pixels.getHeight() > 0) {
-                image.setFromPixels(pixels);
-                contourFinder.findContours(image);
-            } else {
-                ofLogNotice() << "Mask pixels:" << pixels.getWidth() << pixels.getHeight() << pixels.getImageType();
-            }
-        }        
+    
+    if (kinectOn) {
+        kinect.update();
+        if (kinect.getNumTrackedUsers() > 0 && armsRaised(kinect.getTrackedUser(0))) {
+            ofLogNotice() << "Grow!";
+            e->grow();
+        }
     }
 }
 
 //--------------------------------------------------------------
 void testApp::draw(){
-
-    if (debugMode) {
-        float y = 2 * ofGetHeight() - kinect.getHeight();
-        ofPushMatrix();
-        ofScale(0.5, 0.5);
-        ofTranslate(0, y);
-        
-        kinect.drawDepth();
-        image.draw(640, 0);
-        ofTranslate(640*2, 0);
-        contourFinder.draw();
-        
-        ofPopMatrix();
-        ofPushStyle();
-        ofSetColor(255, 255, 255);
-        
-        if (kinect.getNumTrackedUsers() > 0) {
-            ofxOpenNIUser user = kinect.getTrackedUser(0);
-            ofPixels pix = user.getMaskPixels();
-            verdana.drawString("Mask: " + ofToString(pix.getWidth()) + ", " + ofToString(pix.getHeight()) + " " + ofToString(pix.getImageType()), 650, 48);
-        }
-        
-        verdana.drawString("Kinect: " + ofToString(kinect.getWidth()) + ", " + ofToString(kinect.getHeight()), 650, 24);
-        ofPopStyle();
-    }
-    
     ofSetColor(255, 255, 255);
     ofRect(0, 0, 640, 480);
 
-//    if (kinect.getNumTrackedUsers() > 0) {
-//        for (int j = 0; j < blobCount; j++) {
-//            int contourLength = contourFinder.blobs[j].pts.size();
-//            vector<ofPoint> original;
-//            vector<ofPoint> simplified;
-//            
-//            original.assign(contourLength, ofPoint());
-//            simplified.assign(contourLength, ofPoint());
-//            
-//            for (int k = 0; k < contourLength; k++) {
-//                original[k] = contourFinder.blobs[j].pts[k];
-//            }
-//            
-//            contourSimplifier.simplify(original, simplified, 0.001);
-//            
-//            ofSetLineWidth(0.25);
-//            ofSetColor(0, 0, 0);
-//            ofBeginShape();
-//            for (int k = 0; k < simplified.size(); k++) {
-//                ofVertex(simplified[k].x, simplified[k].y);
-//            }
-//            ofEndShape();
-//        }
-//    }
+    if (kinect.getNumTrackedUsers() > 0) {
+        kinect.drawSkeleton(0);
+        e->draw(kinect.getTrackedUser(0));
+    }
+
+    if (debugMode) {
+        ofPushMatrix();
+        ofScale(0.5, 0.5);
+        ofTranslate(0, 2 * ofGetHeight() - kinect.getHeight());
+        kinect.drawDebug();        
+        ofPopMatrix();
+        
+        if (kinect.getNumTrackedUsers() > 0) {
+            ofSetColor(0);
+
+            if (armsRaised(kinect.getTrackedUser(0))) {
+                ofDrawBitmapString("GROW", 640 / 2 - 14, 480 / 2);
+            } else {
+                ofxOpenNIUser user = kinect.getTrackedUser(0);
+                ofPoint pt = user.getJoint(JOINT_LEFT_SHOULDER).getProjectivePosition();
+                float angle = limbAngle(user.getLimb(LIMB_LEFT_UPPER_ARM));
+                ofDrawBitmapString(ofToString(angle), pt);
+                                        
+                angle = limbAngle(user.getLimb(LIMB_RIGHT_UPPER_ARM));
+                pt = user.getJoint(JOINT_RIGHT_SHOULDER).getProjectivePosition();
+                ofDrawBitmapString(ofToString(angle), pt);
+            }
+        }
+    }
 }
 
-void testApp::stickman(ofxOpenNIUser user) {
-    ofPushStyle();
-    ofSetHexColor(0x000000);
+bool testApp::armsRaised(ofxOpenNIUser user) {
+    float langle = limbAngle(user.getLimb(LIMB_LEFT_UPPER_ARM)),
+        rangle = limbAngle(user.getLimb(LIMB_RIGHT_UPPER_ARM));
     
-    for (int i = 0; i < user.getNumLimbs(); i++) {
-        ofxOpenNILimb limb = user.getLimb((Limb) i);
-        ofPoint start = limb.getStartJoint().getProjectivePosition();
-        ofPoint end = limb.getEndJoint().getProjectivePosition();
-        
-        ofLine(start, end);
-    }
-    
-    ofPopStyle();
+    return (langle == langle && rangle == rangle && langle > -20 && rangle < 20);
+}
+
+float testApp::limbAngle(ofxOpenNILimb limb) {
+    ofPoint start = limb.getStartJoint().getProjectivePosition();
+    ofPoint end = limb.getEndJoint().getProjectivePosition();
+    float angle = atan((end.y - start.y) / (end.x - start.x)) * 180 / M_PI;
+
+    return angle;
 }
 
 //--------------------------------------------------------------
@@ -128,15 +115,10 @@ void testApp::userEvent(ofxOpenNIUserEvent & event){
     
     switch (event.userStatus) {
         case USER_TRACKING_STARTED:
-            userIds.push_back(event.id);
             break;
             
         case USER_TRACKING_STOPPED:
-            for (vector<XnUserID>::iterator it = userIds.begin(); it < userIds.end(); it++) {
-                if ((*it) == event.id) {
-                    userIds.erase(it);
-                }
-            }
+            e->reset();
             break;
             
         default:
@@ -144,11 +126,30 @@ void testApp::userEvent(ofxOpenNIUserEvent & event){
     }
 }
 
+void testApp::guiEvent(ofxUIEventArgs & event) {
+    string name = event.widget->getName();
+    float v = ((ofxUISlider *) event.widget)->getValue();
+    
+    if (name == "GROW RATE") {
+        e->setPGrow(v);
+    } else if (name == "BIFURCATE RATE") {
+        e->setPBifurcate(v);
+    } else if (name == "THICKNESS") {
+        e->setThicknessFactor(v);
+    } else if (name == "MIN LENGTH") {
+        e->setMinLength(v);
+    } else if (name == "MAX LENGTH") {
+        e->setMaxLength(v);
+    } else if (name == "MAX SIZE") {
+        e->setMaxSize(v);
+    }
+}
+
 //--------------------------------------------------------------
 void testApp::exit(){
     // this often does not work -> it's a known bug -> but calling it on a key press or anywhere that isnt std::aexit() works
     // press 'x' to shutdown cleanly...
-//    kinect.stop();
+    kinect.stop();
 }
 
 //--------------------------------------------------------------
@@ -186,12 +187,14 @@ void testApp::keyPressed(int key){
             break;
 
         case 'x':
-            kinect.stop();
-            break;
+            if (kinectOn) {
+                kinect.stop();
+            } else {
+                kinect.start();
+            }
             
-        case OF_KEY_BACKSPACE:
-            // Toggle debug mode with backspace.
-            debugMode = !debugMode;
+            kinectOn = !kinectOn;
+
             break;
             
         default:
