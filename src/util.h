@@ -16,6 +16,7 @@
 #define DEGREES(rad) (rad * 180 / M_PI)
 
 float angle(float x1, float y1, float x2, float y2);
+
 float limbAngle(ofxLimb limb);
 
 #endif

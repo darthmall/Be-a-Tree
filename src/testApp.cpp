@@ -53,6 +53,12 @@ void testApp::draw(){
     ofSetColor(226, 225, 233);
     ofRect(0, 0, 640, 480);
 
+    ofxTrackedUser *user = NULL;
+    
+    if (userGenerator.getNumberOfTrackedUsers() > 0) {
+        user = userGenerator.getTrackedUser(1);
+    }
+
     if (debug) {
         ofPushMatrix();
         ofTranslate(0, 490);
@@ -60,11 +66,22 @@ void testApp::draw(){
         depthGenerator.draw(0, 0, 640, 480);
         imageGenerator.draw(640, 0, 640, 480);
         
-        if (userGenerator.getNumberOfTrackedUsers() > 0) {
-            userGenerator.getTrackedUser(1)->debugDraw();
+        if (user) {
+            user->debugDraw();
         }
 
         ofPopMatrix();
+        
+        if(user) {
+            user->debugDraw();
+            float theta = DEGREES(limbAngle(user->left_lower_arm));
+            ofDrawBitmapString(ofToString(theta), user->left_lower_arm.position[1].X,
+                               user->left_lower_arm.position[1].Y - 10);
+        }
+    }
+    
+    if (userGenerator.getNumberOfTrackedUsers() > 0) {
+        tree->draw(*userGenerator.getTrackedUser(1));
     }
 }
 

@@ -24,8 +24,7 @@ public:
     ~twig();
     
     void grow();
-    void draw(float x, float y, float rotation);
-    void draw(float x, float y);
+    void draw();
     void clear();
     int depth();
     int size();

@@ -54,6 +54,9 @@ private:
     float max_size;
 
     map<XnSkeletonJoint, twig*> branches;
+    
+    twig *right_arm;
+    twig *left_arm;
 };
 
 #endif

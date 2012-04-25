@@ -71,32 +71,31 @@ void twig::grow() {
     }
 }
 
-void twig::draw(float x, float y) {
-    this->draw(x, y, 0);
-}
-
-void twig::draw(float x, float y, float rotation) {    
+void twig::draw() {    
     float start = (depth() - 1) / thickness_factor;
     float end = depth() / thickness_factor;
 
     ofPushMatrix();
-    ofTranslate(x, y);
-    ofRotate(angle + rotation);
+    ofRotate(angle);
+    
+    // FIXME: use split angles to align polygons
+    // Draw me
+    ofBeginShape();
+    ofVertex(-end / 2, 0);
+    ofVertex(-start / 2, -length);
+    ofVertex(start / 2, -length);
+    ofVertex(end / 2, 0);
+    ofEndShape();
 
+    // Draw children
+    ofTranslate(0, -length);
     if (left) {
-        left->draw(0, -length);
+        left->draw();
     }
     
     if (right) {
-        right->draw(0, -length);
+        right->draw();
     }
-
-    ofBeginShape();
-    ofVertex(x - (end / 2), 0);
-    ofVertex(x - (start / 2), -length);
-    ofVertex(x + (start / 2), -length);
-    ofVertex(x + (end / 2), 0);
-    ofEndShape();
 
     ofPopMatrix();
 }

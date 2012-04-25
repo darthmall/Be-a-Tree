@@ -18,24 +18,23 @@ trunk::trunk(float p_grow,
          float max_size) : p_grow(p_grow), p_bifurcate(p_bifurcate), thickness_factor(thickness_factor), min_length(min_length), max_length(max_length), max_size(max_size) {
 
     twig *head = new twig(ofRandom(-5, 5), 5, p_grow, p_bifurcate, thickness_factor, 5, 10, 20);
-    twig *rhand = new twig(ofRandom(85, 95), 5, p_grow, p_bifurcate, thickness_factor, 5, 10, 20);
-    twig *lhand = new twig(ofRandom(-95, -85), 5, p_grow, p_bifurcate, thickness_factor, 5, 10, 20);
+
+    right_arm = new twig(0, 15, p_grow, p_bifurcate, thickness_factor, 5, 10, 20);
+    left_arm = new twig(0, 15, p_grow, p_bifurcate, thickness_factor, 5, 10, 20);
     
     while (head->size() < head->getMaxSize()) {
         head->grow();
     }
     
-    while (rhand->size() < rhand->getMaxSize()) {
-        rhand->grow();
+    while (right_arm->size() < right_arm->getMaxSize()) {
+        right_arm->grow();
     }
     
-    while (lhand->size() < lhand->getMaxSize()) {
-        lhand->grow();
+    while (left_arm->size() < left_arm->getMaxSize()) {
+        left_arm->grow();
     }
     
     branches[XN_SKEL_HEAD] = head;
-    branches[XN_SKEL_RIGHT_HAND] = rhand;
-    branches[XN_SKEL_LEFT_HAND] = lhand;
 
     branches[XN_SKEL_LEFT_SHOULDER] = new twig(ofRandom(-5, 35), 5, p_grow, p_bifurcate, thickness_factor, min_length, max_length, max_size);
     branches[XN_SKEL_LEFT_ELBOW] = new twig(ofRandom(-5, 35), 5, p_grow, p_bifurcate, thickness_factor, min_length, max_length, max_size);
@@ -55,7 +54,26 @@ trunk::~trunk() {
 }
 
 void trunk::draw(ofxTrackedUser user) {
+    ofPushStyle();
+    ofFill();
+    ofSetHexColor(0x5F6273);
 
+    // Draw right arm
+    ofPushMatrix();
+    ofTranslate(user.right_lower_arm.position[0].X,
+                user.right_lower_arm.position[0].Y);
+    ofRotate(DEGREES(limbAngle(user.right_lower_arm)) + 90);
+    right_arm->draw();
+    ofPopMatrix();
+    
+    // Draw left arm
+    ofPushMatrix();
+    ofTranslate(user.left_lower_arm.position[0].X,
+                user.left_lower_arm.position[0].Y);
+    ofRotate(DEGREES(limbAngle(user.left_lower_arm)) + 90);
+    left_arm->draw();
+    ofPopMatrix();
+    ofPopStyle();
 }
 
 void trunk::grow() {

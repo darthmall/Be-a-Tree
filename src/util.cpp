@@ -21,8 +21,7 @@ float limbAngle(ofxLimb limb) {
     // Correct for OF's weird coordinate system with positive-y being down
     if (limb.position[1].X < limb.position[0].X) {
         // Quadrants II and III
-        return (limb.position[1].Y < limb.position[0].Y) ? 180 + abs(theta) : 180 - abs(theta);
-        
+        return M_PI + theta;
     }
     
     // Quadrants I and IV
