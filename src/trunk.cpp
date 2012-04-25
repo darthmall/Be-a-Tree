@@ -32,13 +32,14 @@ trunk::trunk(float p_grow,
     while (left_arm->size() < left_arm->getMaxSize()) {
         left_arm->grow();
     }
-
-    left_shoulder = new twig(ofRandom(-5, 35), 5, p_grow, p_bifurcate, thickness_factor, min_length, max_length, max_size);
-    left_elbow = new twig(ofRandom(-5, 35), 5, p_grow, p_bifurcate, thickness_factor, min_length, max_length, max_size);
+    
+    // FIXME: These parameters need tweaking
+    left_shoulder = new twig(ofRandom(-185, -140), 5, p_grow, p_bifurcate, thickness_factor, min_length, max_length, max_size);
+    left_elbow = new twig(ofRandom(-140, -120), 5, p_grow, p_bifurcate, thickness_factor, min_length, max_length, max_size);
     left_hip = new twig(ofRandom(-95, -85), 5, p_grow, p_bifurcate, thickness_factor, min_length, max_length, max_size);
-    right_shoulder = new twig(ofRandom(-35, 5), 5, p_grow, p_bifurcate, thickness_factor, min_length, max_length, max_size);
-    right_elbow = new twig(ofRandom(-35, 5), 5, p_grow, p_bifurcate, thickness_factor, min_length, max_length, max_size);
-    right_hip = new twig(ofRandom(85, 95), 5, p_grow, p_bifurcate, thickness_factor, min_length, max_length, max_size);
+    right_shoulder = new twig(ofRandom(95, 40), 5, p_grow, p_bifurcate, thickness_factor, min_length, max_length, max_size);
+    right_elbow = new twig(ofRandom(20, 60), 5, p_grow, p_bifurcate, thickness_factor, min_length, max_length, max_size);
+    right_hip = new twig(ofRandom(120, 185), 5, p_grow, p_bifurcate, thickness_factor, min_length, max_length, max_size);
 }
 
 trunk::~trunk() {
