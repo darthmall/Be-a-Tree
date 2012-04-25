@@ -1,11 +1,10 @@
 #ifndef _TEST_APP
 #define _TEST_APP
 
-#include "ofxBox2d.h"
-#include "ofxOpenNI.h"
 #include "ofMain.h"
+#include "ofxOpenNI.h"
 #include "ofxUI.h"
-#include "ent.h"
+#include "trunk.h"
 
 class testApp : public ofBaseApp {
 
@@ -24,21 +23,25 @@ public:
 	void mouseReleased(int x, int y, int button);
 	void windowResized(int w, int h);
 
-    void userEvent(ofxOpenNIUserEvent & event);
     void guiEvent(ofxUIEventArgs & event);
 
 private:
 
-    bool armsRaised(ofxOpenNIUser user);
-    float limbAngle(ofxOpenNILimb limb);
+    ofxOpenNIContext context;
+    ofxDepthGenerator depthGenerator;
+    ofxImageGenerator imageGenerator;
+    ofxUserGenerator userGenerator;
 
-    bool debugMode;
-    ofTrueTypeFont verdana;
+    // For the user generator
+    float filterFactor;
+
+    trunk *tree;
+
+    bool debug;
     ofxUICanvas *gui;
 
-    ent *e;
-	ofxOpenNI kinect;
-    bool kinectOn;
+
+    bool armsRaised(ofxTrackedUser user);
 };
 
 #endif

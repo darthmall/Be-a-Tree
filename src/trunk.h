@@ -12,23 +12,22 @@
 #include "ofxOpenNI.h"
 #include "twig.h"
 
-class ent {
+class trunk {
 
 public:
     
-    ent(ofxOpenNIUser user,
-        float p_grow,
+    trunk(float p_grow,
         float p_bifurcate,
         float thickness_factor,
         float min_length,
         float max_length,
         float max_size);
 
-    ~ent();
+    ~trunk();
 
     void reset();
     void grow();
-    void draw(ofxOpenNIUser user);
+    void draw(ofxTrackedUser user);
     
     void setPGrow(float p);
     void setPBifurcate(float p);
@@ -45,15 +44,9 @@ public:
     float getMaxSize();
 
 private:
-    void drawTorso(ofxOpenNIUser user);
-    void drawLimb(ofxOpenNIUser user, Limb limbType, float w);
-    void growTips(vector<twig> & appendage);
-    float calculateTrunkWidth(ofxOpenNIUser user);
-    float limbAngle(ofxOpenNILimb limb);
-    float limbAngle(ofxOpenNIJoint start, ofxOpenNIJoint end);
-    float limbAngle(ofPoint start, ofPoint end);
-
-    float timestamp;
+    void drawTrunk(ofxTrackedUser user);
+    float limbAngle(ofxLimb limb);
+    float limbAngle(XnPoint3D start, XnPoint3D end);
     
     float p_grow;
     float p_bifurcate;
@@ -62,7 +55,7 @@ private:
     float max_length;
     float max_size;
 
-    map<Joint, twig*> joints;
+    map<XnSkeletonJoint, twig*> branches;
 };
 
 #endif
