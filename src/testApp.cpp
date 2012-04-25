@@ -74,9 +74,6 @@ void testApp::draw(){
         
         if(user) {
             user->debugDraw();
-            float theta = DEGREES(limbAngle(user->left_lower_arm));
-            ofDrawBitmapString(ofToString(theta), user->left_lower_arm.position[1].X,
-                               user->left_lower_arm.position[1].Y - 10);
         }
     }
     
