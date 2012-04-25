@@ -17,8 +17,7 @@ trunk::trunk(float p_grow,
          float max_length,
          float max_size) : p_grow(p_grow), p_bifurcate(p_bifurcate), thickness_factor(thickness_factor), min_length(min_length), max_length(max_length), max_size(max_size) {
 
-    twig *head = new twig(ofRandom(-5, 5), 5, p_grow, p_bifurcate, thickness_factor, 5, 10, 20);
-
+    head = new twig(ofRandom(-5, 5), 5, p_grow, p_bifurcate, thickness_factor, 5, 10, 20);
     right_arm = new twig(0, 15, p_grow, p_bifurcate, thickness_factor, 5, 10, 20);
     left_arm = new twig(0, 15, p_grow, p_bifurcate, thickness_factor, 5, 10, 20);
     
@@ -33,24 +32,25 @@ trunk::trunk(float p_grow,
     while (left_arm->size() < left_arm->getMaxSize()) {
         left_arm->grow();
     }
-    
-    branches[XN_SKEL_HEAD] = head;
 
-    branches[XN_SKEL_LEFT_SHOULDER] = new twig(ofRandom(-5, 35), 5, p_grow, p_bifurcate, thickness_factor, min_length, max_length, max_size);
-    branches[XN_SKEL_LEFT_ELBOW] = new twig(ofRandom(-5, 35), 5, p_grow, p_bifurcate, thickness_factor, min_length, max_length, max_size);
-    branches[XN_SKEL_LEFT_HIP] = new twig(ofRandom(-95, -85), 5, p_grow, p_bifurcate, thickness_factor, min_length, max_length, max_size);
-    branches[XN_SKEL_RIGHT_SHOULDER] = new twig(ofRandom(-35, 5), 5, p_grow, p_bifurcate, thickness_factor, min_length, max_length, max_size);
-    branches[XN_SKEL_RIGHT_ELBOW] = new twig(ofRandom(-35, 5), 5, p_grow, p_bifurcate, thickness_factor, min_length, max_length, max_size);
-    branches[XN_SKEL_RIGHT_HIP] = new twig(ofRandom(85, 95), 5, p_grow, p_bifurcate, thickness_factor, min_length, max_length, max_size);
+    left_shoulder = new twig(ofRandom(-5, 35), 5, p_grow, p_bifurcate, thickness_factor, min_length, max_length, max_size);
+    left_elbow = new twig(ofRandom(-5, 35), 5, p_grow, p_bifurcate, thickness_factor, min_length, max_length, max_size);
+    left_hip = new twig(ofRandom(-95, -85), 5, p_grow, p_bifurcate, thickness_factor, min_length, max_length, max_size);
+    right_shoulder = new twig(ofRandom(-35, 5), 5, p_grow, p_bifurcate, thickness_factor, min_length, max_length, max_size);
+    right_elbow = new twig(ofRandom(-35, 5), 5, p_grow, p_bifurcate, thickness_factor, min_length, max_length, max_size);
+    right_hip = new twig(ofRandom(85, 95), 5, p_grow, p_bifurcate, thickness_factor, min_length, max_length, max_size);
 }
 
 trunk::~trunk() {
-    map<XnSkeletonJoint, twig*>::iterator it;
-    for (it = branches.begin(); it != branches.end(); it++) {
-        delete (*it).second;
-    }
-    
-    branches.clear();
+    delete head;
+    delete left_shoulder;
+    delete right_shoulder;
+    delete left_elbow;
+    delete right_elbow;
+    delete left_arm;
+    delete right_arm;
+    delete left_hip;
+    delete right_hip;
 }
 
 void trunk::draw(ofxTrackedUser user) {
@@ -58,40 +58,63 @@ void trunk::draw(ofxTrackedUser user) {
     ofFill();
     ofSetHexColor(0x5F6273);
 
-    // Draw right arm
-    ofPushMatrix();
-    ofTranslate(user.right_lower_arm.position[0].X,
-                user.right_lower_arm.position[0].Y);
-    ofRotate(DEGREES(limbAngle(user.right_lower_arm)) + 90);
-    right_arm->draw();
-    ofPopMatrix();
-    
-    // Draw left arm
-    ofPushMatrix();
-    ofTranslate(user.left_lower_arm.position[0].X,
-                user.left_lower_arm.position[0].Y);
-    ofRotate(DEGREES(limbAngle(user.left_lower_arm)) + 90);
-    left_arm->draw();
-    ofPopMatrix();
-    ofPopStyle();
+    drawTwig(user.right_lower_arm, right_arm, true);
+    drawTwig(user.left_lower_arm, left_arm, true);
+    drawTwig(user.left_shoulder, left_shoulder);
+    drawTwig(user.left_upper_arm, left_elbow);
+    drawTwig(user.hip, left_hip);
+    drawTwig(user.right_shoulder, right_shoulder);
+    drawTwig(user.right_upper_arm, right_elbow);
+    drawTwig(user.hip, right_hip, true);
 }
 
 void trunk::grow() {
-    map<XnSkeletonJoint, twig*>::iterator it;
-    for (it = branches.begin(); it != branches.end(); it++) {
-        (*it).second->grow();
-    }
+    head->grow();
+    left_shoulder->grow();
+    left_elbow->grow();
+    left_hip->grow();
+    right_shoulder->grow();
+    right_elbow->grow();
+    right_hip->grow();
 }
 
 void trunk::reset() {
-    map<XnSkeletonJoint, twig*>::iterator it;
-    for (it = branches.begin(); it != branches.end(); it++) {
-        (*it).second->clear();
-    }
+    head->clear();
+    left_shoulder->clear();
+    left_elbow->clear();
+    left_hip->clear();
+    right_shoulder->clear();
+    right_elbow->clear();
+    right_hip->clear();
 }
 
 void trunk::drawTrunk(ofxTrackedUser user) {
 
+}
+
+void trunk::drawTwig(ofxLimb limb, twig *t, bool asLimb) {
+    if (limb.found) {
+        float angle = DEGREES(limbAngle(limb));
+        XnPoint3D origin;
+
+        // If we draw the twig as the limb, position at the limb's origin, and
+        // rotate an additional 90 degress to align the twig with the limb's
+        // orientation.
+        ofPushMatrix();
+        if (asLimb) {
+            origin = limb.position[0];
+            angle += 90;
+        } else {
+            origin = limb.position[1];
+        }
+        
+        ofTranslate(origin.X, origin.Y);
+        ofRotate(angle);
+
+        t->draw();
+
+        ofPopMatrix();
+    }
 }
 
 void trunk::setPGrow(float p) {

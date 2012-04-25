@@ -46,6 +46,11 @@ void testApp::update(){
     depthGenerator.update();
     imageGenerator.update();
     userGenerator.update();
+    
+    if (userGenerator.getNumberOfTrackedUsers() > 0 &&
+        armsRaised(*userGenerator.getTrackedUser(1))) {
+        tree->grow();
+    }
 }
 
 //--------------------------------------------------------------
@@ -83,10 +88,11 @@ void testApp::draw(){
 }
 
 bool testApp::armsRaised(ofxTrackedUser user) {
-    float langle = limbAngle(user.left_upper_arm);
-    float rangle = limbAngle(user.right_upper_arm);
+    float langle = DEGREES(limbAngle(user.left_upper_arm));
+    float rangle = DEGREES(limbAngle(user.right_upper_arm));
     
-    return (langle == langle && rangle == rangle && langle > -20 && rangle < 20);
+    return (langle == langle && rangle == rangle &&
+            langle > -20  && rangle < 20);
 }
 
 void testApp::guiEvent(ofxUIEventArgs & event) {

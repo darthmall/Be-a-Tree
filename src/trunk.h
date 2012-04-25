@@ -45,6 +45,7 @@ public:
 
 private:
     void drawTrunk(ofxTrackedUser user);
+    void drawTwig(ofxLimb limb, twig *t, bool asLimb=false);
     
     float p_grow;
     float p_bifurcate;
@@ -52,9 +53,14 @@ private:
     float min_length;
     float max_length;
     float max_size;
-
-    map<XnSkeletonJoint, twig*> branches;
     
+    twig *head;
+    twig *left_shoulder;
+    twig *left_elbow;
+    twig *left_hip;
+    twig *right_shoulder;
+    twig *right_elbow;
+    twig *right_hip;
     twig *right_arm;
     twig *left_arm;
 };
