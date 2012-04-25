@@ -27,7 +27,7 @@ public:
 
     void reset();
     void grow();
-    void draw(ofxTrackedUser user, bool debug);
+    void draw(ofxTrackedUser user);
     
     void setPGrow(float p);
     void setPBifurcate(float p);
@@ -44,17 +44,9 @@ public:
     float getMaxSize();
 
 private:
-    
-    void drawTrunk(ofxTrackedUser user, bool debug);
-    void drawLimb(ofxLimb, float dangle, int depth, bool debug);
+    void drawTrunk(ofxTrackedUser user);
     float limbAngle(ofxLimb limb);
     float limbAngle(XnPoint3D start, XnPoint3D end);
-    float limbLength(ofxLimb limb);
-    float splitAngle(ofxLimb l1, ofxLimb l2);
-    ofPoint jointStrut(ofxLimb first, ofxLimb second, float width);
-    ofPoint jointStrut(ofxLimb limb, float width);
-
-    float timestamp;
     
     float p_grow;
     float p_bifurcate;
