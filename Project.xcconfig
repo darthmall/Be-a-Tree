@@ -6,12 +6,6 @@ OF_PATH = ../../..
 #include "../../../libs/openFrameworksCompiled/project/osx/CoreOF.xcconfig"
 
 ADDONS_PATH = $(OF_PATH)/addons
-OFX_OPENCV_HEADERS = "$(ADDONS_PATH)/ofxOpenCv/libs/opencv/include/"
-OFX_CV_HEADERS = $(OFX_OPENCV_HEADERS) "$(ADDONS_PATH)/ofxCv/libs/ofxCv/include/"
 
-OFX_KINECT_HEADERS = "$(ADDONS_PATH)/ofxKinect/libs/libusb/osx/include/"
-OFX_KINECT_LIBS = "$(ADDONS_PATH)/ofxKinect/libs/libusb/osx/libs/usb-1.0.a"
-
-
-OTHER_LDFLAGS = $(OF_CORE_LIBS) $(OFX_KINECT_LIBS)
-HEADER_SEARCH_PATHS = $(OF_CORE_HEADERS) $(OFX_CV_HEADERS) $(OFX_KINECT_HEADERS)
+OTHER_LDFLAGS = $(OF_CORE_LIBS)
+HEADER_SEARCH_PATHS = $(OF_CORE_HEADERS)
