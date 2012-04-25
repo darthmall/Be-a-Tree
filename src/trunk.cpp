@@ -7,6 +7,7 @@
 //
 
 #include "trunk.h"
+#include "util.h"
 #include <iostream>
 
 trunk::trunk(float p_grow,
@@ -73,15 +74,6 @@ void trunk::reset() {
 
 void trunk::drawTrunk(ofxTrackedUser user) {
 
-}
-
-float trunk::limbAngle(ofxLimb limb) {
-    return limbAngle(limb.position[0], limb.position[1]);
-}
-
-float trunk::limbAngle(XnPoint3D start, XnPoint3D end) {
-    float angle = atan((end.Y - start.Y) / (end.X - start.X)) * 180 / M_PI;
-    return angle;
 }
 
 void trunk::setPGrow(float p) {

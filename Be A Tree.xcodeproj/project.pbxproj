@@ -38,6 +38,7 @@
 		7E297BC7154796F9005FEFE2 /* libXnVFeatures_1_5_2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 7E297BB9154796F8005FEFE2 /* libXnVFeatures_1_5_2.dylib */; };
 		7E297BC8154796F9005FEFE2 /* libXnVHandGenerator_1_5_2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 7E297BBA154796F8005FEFE2 /* libXnVHandGenerator_1_5_2.dylib */; };
 		7E297BC9154796F9005FEFE2 /* libXnVNite_1_5_2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 7E297BBB154796F8005FEFE2 /* libXnVNite_1_5_2.dylib */; };
+		7E297D7D15479A93005FEFE2 /* util.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E297D7C15479A93005FEFE2 /* util.cpp */; };
 		7E944698153F2BAB004A7F61 /* twig.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E944696153F2BAB004A7F61 /* twig.cpp */; };
 		7EFD101B1543689D000F6885 /* trunk.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7EFD101A1543689D000F6885 /* trunk.cpp */; };
 		BBAB23CB13894F3D00AA2426 /* GLUT.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = BBAB23BE13894E4700AA2426 /* GLUT.framework */; };
@@ -299,6 +300,7 @@
 		7E297BB9154796F8005FEFE2 /* libXnVFeatures_1_5_2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libXnVFeatures_1_5_2.dylib; sourceTree = "<group>"; };
 		7E297BBA154796F8005FEFE2 /* libXnVHandGenerator_1_5_2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libXnVHandGenerator_1_5_2.dylib; sourceTree = "<group>"; };
 		7E297BBB154796F8005FEFE2 /* libXnVNite_1_5_2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libXnVNite_1_5_2.dylib; sourceTree = "<group>"; };
+		7E297D7C15479A93005FEFE2 /* util.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = util.cpp; sourceTree = "<group>"; };
 		7E944696153F2BAB004A7F61 /* twig.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = twig.cpp; sourceTree = "<group>"; };
 		7E944697153F2BAB004A7F61 /* twig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = twig.h; sourceTree = "<group>"; };
 		7EFD101915436846000F6885 /* trunk.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = trunk.h; sourceTree = "<group>"; };
@@ -798,6 +800,7 @@
 				7704EC2114C70657001AF021 /* testApp.cpp */,
 				7E2978E3154783CC005FEFE2 /* tree */,
 				7E2978E4154788E1005FEFE2 /* util.h */,
+				7E297D7C15479A93005FEFE2 /* util.cpp */,
 			);
 			path = src;
 			sourceTree = SOURCE_ROOT;
@@ -916,6 +919,7 @@
 				7E2979FE154796D8005FEFE2 /* tinyxmlerror.cpp in Sources */,
 				7E2979FF154796D8005FEFE2 /* tinyxmlparser.cpp in Sources */,
 				7E297A00154796D8005FEFE2 /* ofxXmlSettings.cpp in Sources */,
+				7E297D7D15479A93005FEFE2 /* util.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

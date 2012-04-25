@@ -45,8 +45,6 @@ public:
 
 private:
     void drawTrunk(ofxTrackedUser user);
-    float limbAngle(ofxLimb limb);
-    float limbAngle(XnPoint3D start, XnPoint3D end);
     
     float p_grow;
     float p_bifurcate;
