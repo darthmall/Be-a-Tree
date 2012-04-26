@@ -95,8 +95,8 @@ void trunk::draw(ofxTrackedUser user) {
                                         user.right_upper_arm.position[1].X,
                                         user.right_upper_arm.position[1].Y,
                                         user.right_lower_arm.position[1].X,
-                                        user.right_lower_arm.position[1].Y));
-    left_arm->angle = ofRadToDeg(angle(user.left_upper_arm.position[0].X,
+                                        user.right_lower_arm.position[1].Y)) - 180;
+    left_arm->angle = 180 - ofRadToDeg(angle(user.left_upper_arm.position[0].X,
                                        user.left_upper_arm.position[0].Y,
                                        user.left_upper_arm.position[1].X,
                                        user.left_upper_arm.position[1].Y,
