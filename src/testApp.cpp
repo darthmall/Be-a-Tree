@@ -88,8 +88,8 @@ void testApp::draw(){
 }
 
 bool testApp::armsRaised(ofxTrackedUser user) {
-    float langle = DEGREES(limbAngle(user.left_upper_arm));
-    float rangle = DEGREES(limbAngle(user.right_upper_arm));
+    float langle = ofRadToDeg(limbAngle(user.left_upper_arm));
+    float rangle = ofRadToDeg(limbAngle(user.right_upper_arm));
     
     return (langle == langle && rangle == rangle &&
             langle > -20  && rangle < 20);

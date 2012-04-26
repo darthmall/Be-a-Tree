@@ -54,6 +54,8 @@ private:
     float max_length;
     float max_size;
     
+    vector<float> trunk_noise;
+
     twig *head;
     twig *left_shoulder;
     twig *left_elbow;

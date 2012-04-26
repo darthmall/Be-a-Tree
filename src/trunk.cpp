@@ -40,6 +40,12 @@ trunk::trunk(float p_grow,
     right_shoulder = new twig(ofRandom(95, 40), 5, p_grow, p_bifurcate, thickness_factor, min_length, max_length, max_size);
     right_elbow = new twig(ofRandom(20, 60), 5, p_grow, p_bifurcate, thickness_factor, min_length, max_length, max_size);
     right_hip = new twig(ofRandom(120, 185), 5, p_grow, p_bifurcate, thickness_factor, min_length, max_length, max_size);
+    
+    for (int i = 0; i < 15; i++) {
+        float noise = ofRandom(-5, 5);
+        ofLogNotice() << ofToString(noise);
+        trunk_noise.push_back(noise);
+    }
 }
 
 trunk::~trunk() {
@@ -59,6 +65,7 @@ void trunk::draw(ofxTrackedUser user) {
     ofFill();
     ofSetHexColor(0x5F6273);
 
+    drawTrunk(user);
     drawTwig(user.right_lower_arm, right_arm, true);
     drawTwig(user.left_lower_arm, left_arm, true);
     drawTwig(user.left_shoulder, left_shoulder);
@@ -67,6 +74,8 @@ void trunk::draw(ofxTrackedUser user) {
     drawTwig(user.right_shoulder, right_shoulder);
     drawTwig(user.right_upper_arm, right_elbow);
     drawTwig(user.hip, right_hip, true);
+
+    ofPopStyle();
 }
 
 void trunk::grow() {
@@ -90,12 +99,61 @@ void trunk::reset() {
 }
 
 void trunk::drawTrunk(ofxTrackedUser user) {
+    if (user.left_shoulder.found && user.right_shoulder.found && user.hip.found) {
+        float foot_w = ofDist(user.hip.position[0].X, user.hip.position[0].Y,
+                              user.hip.position[1].X, user.hip.position[1].Y) / 2;
 
+        ofBeginShape();
+        
+        ofVertex(user.left_shoulder.position[1].X,
+                 user.left_shoulder.position[1].Y);
+        ofVertex(user.hip.position[0].X,
+                 user.hip.position[0].Y);
+        
+        if (user.left_upper_leg.found && user.right_upper_leg.found) {
+            ofVertex(user.left_upper_leg.position[1].X,
+                     user.left_upper_leg.position[1].Y);
+        
+            if (user.left_lower_leg.found) {
+                ofVertex(user.left_lower_leg.position[1].X,
+                         user.left_lower_leg.position[1].Y);
+                ofVertex(user.left_lower_leg.position[1].X + foot_w,
+                         user.left_lower_leg.position[1].Y);
+            }
+            
+            ofVertex(user.left_upper_leg.position[1].X + foot_w,
+                     user.left_upper_leg.position[1].Y);
+            ofVertex(user.hip.position[0].X + foot_w,
+                     user.hip.position[0].Y);
+            ofVertex(user.right_upper_leg.position[1].X - foot_w,
+                     user.right_upper_leg.position[1].Y);
+            
+            if (user.right_lower_leg.found) {
+                ofVertex(user.right_lower_leg.position[1].X - foot_w,
+                         user.right_lower_leg.position[1].Y);
+                ofVertex(user.right_lower_leg.position[1].X,
+                         user.right_lower_leg.position[1].Y);
+            }
+            
+            ofVertex(user.right_upper_leg.position[1].X,
+                     user.right_upper_leg.position[1].Y);
+        } else {
+            ofVertex(user.hip.position[0].X, ofGetHeight());
+            ofVertex(user.hip.position[1].X, ofGetHeight());
+        }
+        
+        ofVertex(user.hip.position[1].X,
+                 user.hip.position[1].Y);
+        ofVertex(user.right_shoulder.position[1].X,
+                 user.right_shoulder.position[1].Y);
+
+        ofEndShape();
+    }
 }
 
 void trunk::drawTwig(ofxLimb limb, twig *t, bool asLimb) {
     if (limb.found) {
-        float angle = DEGREES(limbAngle(limb));
+        float angle = ofRadToDeg(limbAngle(limb));
         XnPoint3D origin;
 
         // If we draw the twig as the limb, position at the limb's origin, and

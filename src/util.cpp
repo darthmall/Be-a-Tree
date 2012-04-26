@@ -9,7 +9,6 @@
 #include <iostream>
 #include "util.h"
 
-
 float angle(float x1, float y1, float x2, float y2) {
     return atan((y2 - y1) / (x2 - x1));
 }
@@ -26,4 +25,22 @@ float limbAngle(ofxLimb limb) {
     
     // Quadrants I and IV
     return theta;
+}
+
+vector<ofPoint> interpolate(float x1, float y1, float x2, float y2, int resolution) {
+    float m = (y2 - y1) / (x2 - x1);
+    float l = ofDist(x1, y1, x2, y2);
+    float dx = (x2 - x1) / resolution;
+    vector<ofPoint> points;
+    
+    for (int i = 0; i <= resolution; i++) {
+        ofPoint p;
+        
+        p.x = x1 + (i * dx);
+        p.y = y1 + (i * dx * m);
+        
+        points.push_back(p);
+    }
+    
+    return points;
 }
