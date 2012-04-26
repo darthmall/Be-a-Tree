@@ -20,21 +20,11 @@ trunk::trunk(float p_grow,
 
     main = new twig(0, 10, 1, 0, thickness_factor, 10, 15, 20);
 
-    for (int i = 0; i < 5; i++) {
-        head.push_back(new twig(ofRandom((i * 36) - 180, (i * 36) - 144), 5, p_grow, p_bifurcate, thickness_factor, 5, 10, 20));
-    }
-
     right_arm = new twig(0, 15, p_grow, p_bifurcate, thickness_factor, 10, 15, 20);
     left_arm = new twig(0, 15, p_grow, p_bifurcate, thickness_factor, 10, 15, 20);
     right_humorous = new twig(0, 15, p_grow, p_bifurcate, thickness_factor, 15, 20, 20);
     left_humorous = new twig(0, 15, p_grow, p_bifurcate, thickness_factor, 15, 20, 20);
-    
-    for (int i = 0; i < head.size(); i++) {
-        while (head[i]->size() < head[i]->getMaxSize()) {
-            head[i]->grow();
-        }
-    }
-    
+
     while (main->size() < main->getMaxSize()) {
         main->grow();
     }
@@ -68,36 +58,23 @@ trunk::trunk(float p_grow,
     } else {
         left_humorous->append(left_humorous);
     }
-
-    // FIXME: These parameters need tweaking
-    left_shoulder = new twig(ofRandom(-185, -140), 5, p_grow, p_bifurcate, thickness_factor, min_length, max_length, max_size);
-    left_elbow = new twig(ofRandom(-140, -120), 5, p_grow, p_bifurcate, thickness_factor, min_length, max_length, max_size);
-    left_hip = new twig(ofRandom(-95, -85), 5, p_grow, p_bifurcate, thickness_factor, min_length, max_length, max_size);
-    right_shoulder = new twig(ofRandom(95, 40), 5, p_grow, p_bifurcate, thickness_factor, min_length, max_length, max_size);
-    right_elbow = new twig(ofRandom(20, 60), 5, p_grow, p_bifurcate, thickness_factor, min_length, max_length, max_size);
-    right_hip = new twig(ofRandom(120, 185), 5, p_grow, p_bifurcate, thickness_factor, min_length, max_length, max_size);
     
-    main->append(right_shoulder);
-    main->append(left_shoulder);
-    main->append(right_hip);
-    main->append(left_hip);
+    for (int i = 0; i < 8; i++) {
+        float angle = (i > 5) ? ofRandom(-45, 45) : ofRandom(-20, 20);
+        twig *t = new twig(angle,
+                           ofRandom(min_length, max_length),
+                           p_grow, p_bifurcate, thickness_factor,
+                           min_length, max_length, max_size);
+        while (t->size() < t->getMaxSize()) {
+            t->grow();
+        }
+        main->find_node_at_depth(4)->append(t);
+    }
 }
 
 trunk::~trunk() {
-    for (int i = 0; i < head.size(); i++) {
-        delete head[i];
-    }
-    
-    head.clear();
-
-    delete left_shoulder;
-    delete right_shoulder;
-    delete left_elbow;
-    delete right_elbow;
     delete left_arm;
     delete right_arm;
-    delete left_hip;
-    delete right_hip;
     delete main;
 }
 
@@ -120,42 +97,34 @@ void trunk::draw(ofxTrackedUser user) {
                                        user.left_lower_arm.position[1].X,
                                        user.left_lower_arm.position[1].Y));
 
-    for (int i = 0; i < head.size(); i++) {
-        drawTwig(user.neck, head[i]);
-    }
-
-    drawTwig(user.right_upper_arm, right_humorous, true);
-    drawTwig(user.left_upper_arm, left_humorous, true);
-//    drawTwig(user.left_shoulder, left_shoulder);
-//    drawTwig(user.left_upper_arm, left_elbow);
-//    drawTwig(user.hip, left_hip);
-//    drawTwig(user.right_shoulder, right_shoulder);
-//    drawTwig(user.right_upper_arm, right_elbow);
-//    drawTwig(user.hip, right_hip, true);
-
+    float angle = ofRadToDeg(limbAngle(user.right_upper_arm)) + 90;
+    
+    ofPushMatrix();        
+    ofTranslate(user.left_lower_torso.position[0].X,
+                user.right_upper_arm.position[0].Y);
+    ofRotate(angle);
+    
+    right_humorous->draw();
+    
+    ofPopMatrix();
+    
+    ofPushMatrix();
+    angle = max(110.f, ofRadToDeg(limbAngle(user.left_upper_arm)) + 90);
+    ofTranslate(user.left_lower_torso.position[0].X,
+                user.left_upper_arm.position[0].Y);
+    ofRotate(angle);
+    left_humorous->draw();
+    ofPopMatrix();
+    
     ofPopStyle();
 }
 
 void trunk::grow() {
-    left_shoulder->grow();
-    left_elbow->grow();
-    left_hip->grow();
-    right_shoulder->grow();
-    right_elbow->grow();
-    right_hip->grow();
+    main->grow();
 }
 
 void trunk::reset() {
-    for (int i = 0; i < head.size(); i++) {
-        head[i]->clear();
-    }
-    
-    left_shoulder->clear();
-    left_elbow->clear();
-    left_hip->clear();
-    right_shoulder->clear();
-    right_elbow->clear();
-    right_hip->clear();
+
 }
 
 void trunk::drawTrunk(ofxTrackedUser user) {
@@ -172,17 +141,17 @@ void trunk::drawTwig(ofxLimb limb, twig *t, bool asLimb) {
         float angle = ofRadToDeg(limbAngle(limb));
         XnPoint3D origin;
 
-        // If we draw the twig as the limb, position at the limb's origin, and
+        // If we draw the twig as the limb, position at the limb's origin and
         // rotate an additional 90 degress to align the twig with the limb's
         // orientation.
-        ofPushMatrix();
         if (asLimb) {
             origin = limb.position[0];
             angle += 90;
         } else {
             origin = limb.position[1];
         }
-        
+
+        ofPushMatrix();        
         ofTranslate(origin.X, origin.Y);
         ofRotate(angle);
 
