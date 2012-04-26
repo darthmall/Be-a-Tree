@@ -2,6 +2,7 @@
 #define _TEST_APP
 
 #include "ofMain.h"
+#include "ofxCv.h"
 #include "ofxOpenNI.h"
 #include "ofxUI.h"
 #include "trunk.h"
@@ -32,14 +33,16 @@ private:
     ofxImageGenerator imageGenerator;
     ofxUserGenerator userGenerator;
 
+    ofxCv::ContourFinder contourFinder;
+
     // For the user generator
     float filterFactor;
 
     trunk *tree;
 
+    // Debug stuff
     bool debug;
     ofxUICanvas *gui;
-
 
     bool armsRaised(ofxTrackedUser user);
 };

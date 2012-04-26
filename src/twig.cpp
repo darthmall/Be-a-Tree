@@ -12,15 +12,43 @@
 
 twig::twig(float angle,
            float length,
-           float p_grow,
            float p_bifurcate,
            float thickness_factor,
            float min_length,
            float max_length,
-           float max_size) : angle(angle), length(length), p_grow(p_grow), p_bifurcate(p_bifurcate), thickness_factor(thickness_factor), min_length(min_length), max_length(max_length), max_size(max_size), left(NULL), right(NULL) {}
+           float max_size) :
+        angle(angle),
+        length(length),
+        p_bifurcate(p_bifurcate),
+        thickness_factor(thickness_factor),
+        min_length(min_length),
+        max_length(max_length),
+        max_size(max_size),
+        grown(false),
+        left(NULL),
+        right(NULL),
+        parent(NULL) {}
 
 twig::~twig() {
     clear();
+}
+
+void twig::update() {
+    if (grown) {
+        if (left && right) {
+            if (ofRandom(1) < 0.5) {
+                left->update();
+            } else {
+                right->update();
+            }
+        } else if (left) {
+            left->update();
+        } else if (right) {
+            right->update();
+        }
+    } else {
+        grown = true;
+    }
 }
 
 void twig::grow() {
@@ -36,7 +64,18 @@ void twig::grow() {
         
         float p = ofRandom(1);
 
-        if (p < p_bifurcate && (left == NULL || right == NULL)) {
+        if (left == NULL && right == NULL) {
+            twig *growth = new twig(ofRandom(-5, 5), ofRandom(min_length, max_length), p_bifurcate, thickness_factor, min_length, max_length, max_size);
+            growth->parent = this;
+            
+            if (growth->angle < 0) {
+                left = growth;
+                right = NULL;
+            } else {
+                left = NULL;
+                right = growth;
+            }            
+        } else if (p < p_bifurcate && (left == NULL || right == NULL)) {
             float growth_angle = ofRandom(15, 60);
             twig *growth;
             
@@ -45,59 +84,46 @@ void twig::grow() {
                 growth_angle *= -1;
             }
             
-            growth = new twig(growth_angle, ofRandom(min_length, max_length), p_grow, p_bifurcate, thickness_factor, min_length, max_length, max_size);
+            growth = new twig(growth_angle, ofRandom(min_length, max_length), p_bifurcate, thickness_factor, min_length, max_length, max_size);
             growth->parent = this;
             if (growth_angle < 0) {
                 left = growth;
             } else {
                 right = growth;
             }
-        } else if (p < p_grow) {
-            twig *growth = new twig(ofRandom(-5, 5), ofRandom(min_length, max_length), p_grow, p_bifurcate, thickness_factor, min_length, max_length, max_size);
-            growth->parent = this;
-            growth->left = left;
-            growth->right = right;
-            
-            if (growth->angle < 0) {
-                left = growth;
-                right = NULL;
-            } else {
-                left = NULL;
-                right = growth;
-            }
         }
-    } else {
-        ofLogNotice() << "No more growth";
     }
 }
 
-void twig::draw() {    
-    float start = pow(depth() - 1, 1.5) / thickness_factor;
-    float end = pow(depth(), 1.5) / thickness_factor;
+void twig::draw() {
+    if (grown) {
+        float start = pow(depth() - 1, 1.5) / thickness_factor;
+        float end = pow(depth(), 1.5) / thickness_factor;
 
-    ofPushMatrix();
-    ofRotate(angle);
-    
-    // FIXME: use split angles to align polygons
-    // Draw me
-    ofBeginShape();
-    ofVertex(-end / 2, 0);
-    ofVertex(-start / 2, -length);
-    ofVertex(start / 2, -length);
-    ofVertex(end / 2, 0);
-    ofEndShape();
+        ofPushMatrix();
+        ofRotate(angle);
+        
+        // FIXME: use split angles to align polygons
+        // Draw me
+        ofBeginShape();
+        ofVertex(-end / 2, 0);
+        ofVertex(-start / 2, -length);
+        ofVertex(start / 2, -length);
+        ofVertex(end / 2, 0);
+        ofEndShape();
 
-    // Draw children
-    ofTranslate(0, -length);
-    if (left) {
-        left->draw();
+        // Draw children
+        ofTranslate(0, -length);
+        if (left) {
+            left->draw();
+        }
+        
+        if (right) {
+            right->draw();
+        }
+
+        ofPopMatrix();
     }
-    
-    if (right) {
-        right->draw();
-    }
-
-    ofPopMatrix();
 }
 
 void twig::append(twig *transplant) {
@@ -150,6 +176,18 @@ twig *twig::find_node_at_depth(int d, int current_depth) {
     return ret_val;
 }
 
+void twig::setGrown() {
+    grown = true;
+    
+    if (left) {
+        left->setGrown();
+    }
+    
+    if (right) {
+        right->setGrown();
+    }
+}
+
 int twig::depth() {
     int d = std::max((left != NULL) ? left->depth() : 0,
                      (right != NULL) ? right->depth() : 0);
@@ -183,22 +221,6 @@ void twig::clear() {
         delete right;
         right = NULL;
     }
-}
-
-void twig::setPGrow(float p) {
-    p_grow = p;
-    
-    if (left) {
-        left->setPGrow(p);
-    }
-    
-    if (right) {
-        right->setPGrow(p);
-    }
-}
-
-float twig::getPGrow() {
-    return p_grow;
 }
 
 void twig::setPBifurcate(float p) {

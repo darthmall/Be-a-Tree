@@ -11,39 +11,50 @@
 #include <iostream>
 #include <cmath>
 
-trunk::trunk(float p_grow,
-         float p_bifurcate,
+trunk::trunk(float p_bifurcate,
          float thickness_factor,
          float min_length,
          float max_length,
-         float max_size) : p_grow(p_grow), p_bifurcate(p_bifurcate), thickness_factor(thickness_factor), min_length(min_length), max_length(max_length), max_size(max_size) {
+         float max_size) :
+        p_bifurcate(p_bifurcate),
+        thickness_factor(thickness_factor),
+        min_length(min_length),
+        max_length(max_length),
+        max_size(max_size),
+        growthRate(0.1) {
 
-    main = new twig(0, 10, 1, 0, thickness_factor, 10, 15, 20);
+    main = new twig(0, 10, 0, thickness_factor, 10, 15, 20);
 
-    right_arm = new twig(0, 15, p_grow, p_bifurcate, thickness_factor, 10, 15, 20);
-    left_arm = new twig(0, 15, p_grow, p_bifurcate, thickness_factor, 10, 15, 20);
-    right_humorous = new twig(0, 15, p_grow, p_bifurcate, thickness_factor, 15, 20, 20);
-    left_humorous = new twig(0, 15, p_grow, p_bifurcate, thickness_factor, 15, 20, 20);
+    right_arm = new twig(0, 15, p_bifurcate, thickness_factor, 10, 15, 20);
+    left_arm = new twig(0, 15, p_bifurcate, thickness_factor, 10, 15, 20);
+    right_humorous = new twig(0, 15, p_bifurcate, thickness_factor, 15, 20, 20);
+    left_humorous = new twig(0, 15, p_bifurcate, thickness_factor, 15, 20, 20);
 
     while (main->size() < main->getMaxSize()) {
         main->grow();
     }
 
+    main->setGrown();
+
     while (right_arm->size() < right_arm->getMaxSize()) {
         right_arm->grow();
     }
+    right_arm->setGrown();
     
     while (left_arm->size() < left_arm->getMaxSize()) {
         left_arm->grow();
     }
+    left_arm->setGrown();
     
     while (right_humorous->size() < right_humorous->getMaxSize()) {
         right_humorous->grow();
     }
-    
+    right_humorous->setGrown();
+
     while (left_humorous->size() < left_humorous->getMaxSize()) {
         left_humorous->grow();
     }
+    left_humorous->setGrown();
     
     twig *t = right_humorous->find_node_at_depth(5);
     if (t) {
@@ -63,13 +74,15 @@ trunk::trunk(float p_grow,
         float angle = (i > 5) ? ofRandom(-45, 45) : ofRandom(-20, 20);
         twig *t = new twig(angle,
                            ofRandom(min_length, max_length),
-                           p_grow, p_bifurcate, thickness_factor,
+                           p_bifurcate, thickness_factor,
                            min_length, max_length, max_size);
         while (t->size() < t->getMaxSize()) {
             t->grow();
         }
         main->find_node_at_depth(4)->append(t);
     }
+            
+    timestamp = ofGetElapsedTimef();
 }
 
 trunk::~trunk() {
@@ -123,6 +136,15 @@ void trunk::grow() {
     main->grow();
 }
 
+void trunk::update() {
+    float now = ofGetElapsedTimef();
+    
+    if (now - timestamp >= growthRate) {
+        main->update();
+        timestamp = now;
+    }
+}
+
 void trunk::reset() {
 
 }
@@ -161,10 +183,6 @@ void trunk::drawTwig(ofxLimb limb, twig *t, bool asLimb) {
     }
 }
 
-void trunk::setPGrow(float p) {
-    p_grow = p;
-}
-
 void trunk::setPBifurcate(float p) {
     p_bifurcate = p;
 }
@@ -183,10 +201,6 @@ void trunk::setMaxLength(float l) {
 
 void trunk::setMaxSize(float s) {
     max_size = s;
-}
-
-float trunk::getPGrow() {
-    return p_grow;
 }
 
 float trunk::getPBifurcate() {

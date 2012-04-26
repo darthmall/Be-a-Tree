@@ -18,7 +18,6 @@ public:
 
     twig(float angle,
          float length,
-         float p_grow,
          float p_bifurcate,
          float thickness_factor,
          float min_length,
@@ -32,9 +31,12 @@ public:
     int depth();
     int size();
     
+    void update();
     void append(twig *transplant);
     void concat(twig *transplant);
     twig *find_node_at_depth(int d);
+    
+    void setGrown();
 
     void setPGrow(float p);
     float getPGrow();
@@ -56,7 +58,6 @@ public:
     
     
 protected:    
-    float p_grow;
     float p_bifurcate;
     float thickness_factor;
     float min_length;
@@ -64,6 +65,8 @@ protected:
     float angle;
     float length;
     float max_size;
+    
+    bool grown;
 
     twig *parent;
     twig *left;
