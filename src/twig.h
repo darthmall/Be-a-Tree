@@ -65,6 +65,7 @@ protected:
     float length;
     float max_size;
 
+    twig *parent;
     twig *left;
     twig *right;
     

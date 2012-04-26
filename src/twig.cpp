@@ -46,7 +46,7 @@ void twig::grow() {
             }
             
             growth = new twig(growth_angle, ofRandom(min_length, max_length), p_grow, p_bifurcate, thickness_factor, min_length, max_length, max_size);
-            
+            growth->parent = this;
             if (growth_angle < 0) {
                 left = growth;
             } else {
@@ -54,7 +54,7 @@ void twig::grow() {
             }
         } else if (p < p_grow) {
             twig *growth = new twig(ofRandom(-5, 5), ofRandom(min_length, max_length), p_grow, p_bifurcate, thickness_factor, min_length, max_length, max_size);
-            
+            growth->parent = this;
             growth->left = left;
             growth->right = right;
             
@@ -108,12 +108,15 @@ void twig::append(twig *transplant) {
         follow->append(transplant);
     } else if (!left) {
         left = transplant;
+        transplant->parent = this;
     } else {
         right = transplant;
+        transplant->parent = this;
     }
 }
 
 void twig::concat(twig *transplant) {
+    transplant->parent = this;
     if (left == NULL) {
         left = transplant;
     } else if (right == NULL) {

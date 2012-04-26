@@ -22,6 +22,13 @@ float angle(float x1, float y1, float x2, float y2, float x3, float y3) {
     return angle;
 }
 
+float splitAngle(float x1, float y1, float x2, float y2, float x3, float y3) {
+    float theta = angle(x1, y1, x2, y2, x3, y3);
+    float ref = angle(x1, y1, x2, y2);
+    
+    return ref + (theta / 2);
+}
+
 float limbAngle(ofxLimb limb) {
     float theta = angle(limb.position[0].X, limb.position[0].Y,
                         limb.position[1].X, limb.position[1].Y);

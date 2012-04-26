@@ -15,7 +15,7 @@
 
 float angle(float x1, float y1, float x2, float y2);
 float angle(float x1, float y1, float x2, float y2, float x3, float y3);
-
+float splitAngle(float x1, float y1, float x2, float y2, float x3, float y3);
 float limbAngle(ofxLimb limb);
 
 vector<ofPoint> interpolate(float x1, float y1, float x2, float y2, int resolution);
