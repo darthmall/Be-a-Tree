@@ -13,6 +13,14 @@ float angle(float x1, float y1, float x2, float y2) {
     return atan((y2 - y1) / (x2 - x1));
 }
 
+float angle(float x1, float y1, float x2, float y2, float x3, float y3) {
+    float a = abs(ofDist(x1, y1, x3, y3));
+    float b = abs(ofDist(x2, y2, x1, y1));
+    float c = abs(ofDist(x2, y2, x3, y3));
+
+    return acos((pow(b, 2) + pow(c, 2) - pow(a, 2)) / (2 * b * c));
+}
+
 float limbAngle(ofxLimb limb) {
     float theta = angle(limb.position[0].X, limb.position[0].Y,
                         limb.position[1].X, limb.position[1].Y);

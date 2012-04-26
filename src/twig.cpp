@@ -100,6 +100,53 @@ void twig::draw() {
     ofPopMatrix();
 }
 
+void twig::append(twig *transplant) {
+    if (left && right) {
+        // If this twig already has two children, randomly follow one looking
+        // for a place to append the transplant.
+        twig *follow = (ofRandom(1) < 0.5) ? left : right;
+        follow->append(transplant);
+    } else if (!left) {
+        left = transplant;
+    } else {
+        right = transplant;
+    }
+}
+
+void twig::concat(twig *transplant) {
+    if (left == NULL) {
+        left = transplant;
+    } else if (right == NULL) {
+        right = transplant;
+    } else {
+        twig *temp = left;
+        left = transplant;
+        append(temp);
+    }
+}
+
+twig *twig::find_node_at_depth(int d) {
+    return find_node_at_depth(d, 0);
+}
+
+twig *twig::find_node_at_depth(int d, int current_depth) {
+    if (d == current_depth) {
+        return this;
+    }
+    
+    twig *ret_val = NULL;
+    
+    if (left) {
+        ret_val = left->find_node_at_depth(d, current_depth + 1);
+    }
+    
+    if (!ret_val && right) {
+        ret_val = right->find_node_at_depth(d, current_depth + 1);
+    }
+
+    return ret_val;
+}
+
 int twig::depth() {
     int d = std::max((left != NULL) ? left->depth() : 0,
                      (right != NULL) ? right->depth() : 0);

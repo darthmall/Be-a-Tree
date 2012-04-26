@@ -63,6 +63,8 @@ private:
     twig *right_shoulder;
     twig *right_elbow;
     twig *right_hip;
+    twig *right_humorous;
+    twig *left_humorous;
     twig *right_arm;
     twig *left_arm;
 };

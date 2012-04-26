@@ -18,8 +18,10 @@ trunk::trunk(float p_grow,
          float max_size) : p_grow(p_grow), p_bifurcate(p_bifurcate), thickness_factor(thickness_factor), min_length(min_length), max_length(max_length), max_size(max_size) {
 
     head = new twig(ofRandom(-5, 5), 5, p_grow, p_bifurcate, thickness_factor, 5, 10, 20);
-    right_arm = new twig(0, 15, p_grow, p_bifurcate, thickness_factor, 5, 10, 20);
-    left_arm = new twig(0, 15, p_grow, p_bifurcate, thickness_factor, 5, 10, 20);
+    right_arm = new twig(0, 15, p_grow, p_bifurcate, thickness_factor, 10, 15, 20);
+    left_arm = new twig(0, 15, p_grow, p_bifurcate, thickness_factor, 10, 15, 20);
+    right_humorous = new twig(0, 15, p_grow, p_bifurcate, thickness_factor, 15, 20, 20);
+    left_humorous = new twig(0, 15, p_grow, p_bifurcate, thickness_factor, 15, 20, 20);
     
     while (head->size() < head->getMaxSize()) {
         head->grow();
@@ -33,6 +35,28 @@ trunk::trunk(float p_grow,
         left_arm->grow();
     }
     
+    while (right_humorous->size() < right_humorous->getMaxSize()) {
+        right_humorous->grow();
+    }
+    
+    while (left_humorous->size() < left_humorous->getMaxSize()) {
+        left_humorous->grow();
+    }
+    
+    twig *t = right_humorous->find_node_at_depth(5);
+    if (t) {
+        t->concat(right_arm);
+    } else {
+        right_humorous->append(right_arm);
+    }
+    
+    t = left_humorous->find_node_at_depth(5);
+    if (t) {
+        t->concat(left_arm);
+    } else {
+        left_humorous->append(left_humorous);
+    }
+
     // FIXME: These parameters need tweaking
     left_shoulder = new twig(ofRandom(-185, -140), 5, p_grow, p_bifurcate, thickness_factor, min_length, max_length, max_size);
     left_elbow = new twig(ofRandom(-140, -120), 5, p_grow, p_bifurcate, thickness_factor, min_length, max_length, max_size);
@@ -66,15 +90,29 @@ void trunk::draw(ofxTrackedUser user) {
     ofSetHexColor(0x5F6273);
 
     drawTrunk(user);
-    drawTwig(user.right_lower_arm, right_arm, true);
-    drawTwig(user.left_lower_arm, left_arm, true);
+    right_arm->angle = ofRadToDeg(angle(user.right_upper_arm.position[0].X,
+                                        user.right_upper_arm.position[0].Y,
+                                        user.right_upper_arm.position[1].X,
+                                        user.right_upper_arm.position[1].Y,
+                                        user.right_lower_arm.position[1].X,
+                                        user.right_lower_arm.position[1].Y));
+    left_arm->angle = ofRadToDeg(angle(user.left_upper_arm.position[0].X,
+                                       user.left_upper_arm.position[0].Y,
+                                       user.left_upper_arm.position[1].X,
+                                       user.left_upper_arm.position[1].Y,
+                                       user.left_lower_arm.position[1].X,
+                                       user.left_lower_arm.position[1].Y));
+
+    drawTwig(user.right_upper_arm, right_humorous, true);
+    drawTwig(user.left_upper_arm, left_humorous, true);
+    /*
     drawTwig(user.left_shoulder, left_shoulder);
     drawTwig(user.left_upper_arm, left_elbow);
     drawTwig(user.hip, left_hip);
     drawTwig(user.right_shoulder, right_shoulder);
     drawTwig(user.right_upper_arm, right_elbow);
     drawTwig(user.hip, right_hip, true);
-
+*/
     ofPopStyle();
 }
 

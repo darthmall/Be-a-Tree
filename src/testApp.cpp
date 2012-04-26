@@ -18,7 +18,7 @@ void testApp::setup() {
     filterFactor = 0.1f;
 
     // Playback from a video file for testing
-    context.setupUsingRecording(ofToDataPath("test.oni"));
+    context.setupUsingRecording(ofToDataPath("test2.oni"));
     depthGenerator.setup(&context);
     imageGenerator.setup(&context);
     userGenerator.setup(&context);
@@ -79,7 +79,26 @@ void testApp::draw(){
         
         if(user) {
             user->debugDraw();
+            
+            float langle = ofRadToDeg(angle(user->left_upper_arm.position[0].X,
+                                            user->left_upper_arm.position[0].Y,
+                                            user->left_upper_arm.position[1].X,
+                                            user->left_upper_arm.position[1].Y,
+                                            user->left_lower_arm.position[1].X,
+                                            user->left_lower_arm.position[1].Y));
+            float rangle = ofRadToDeg(angle(user->right_upper_arm.position[0].X,
+                                            user->right_upper_arm.position[0].Y,
+                                            user->right_upper_arm.position[1].X,
+                                            user->right_upper_arm.position[1].Y,
+                                            user->right_lower_arm.position[1].X,
+                                            user->right_lower_arm.position[1].Y));
+            
+            ofDrawBitmapString(ofToString(langle), user->left_lower_arm.position[1].X,
+                               user->left_lower_arm.position[1].Y);
+            ofDrawBitmapString(ofToString(rangle), user->right_lower_arm.position[1].X,
+                               user->right_lower_arm.position[1].Y);
         }
+        
     }
     
     if (userGenerator.getNumberOfTrackedUsers() > 0) {

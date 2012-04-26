@@ -14,6 +14,8 @@
 
 class twig {
 public:
+    friend class trunk;
+
     twig(float angle,
          float length,
          float p_grow,
@@ -29,6 +31,10 @@ public:
     void clear();
     int depth();
     int size();
+    
+    void append(twig *transplant);
+    void concat(twig *transplant);
+    twig *find_node_at_depth(int d);
 
     void setPGrow(float p);
     float getPGrow();
@@ -61,6 +67,8 @@ protected:
 
     twig *left;
     twig *right;
+    
+    twig *find_node_at_depth(int d, int current_depth);
 };
 
 
