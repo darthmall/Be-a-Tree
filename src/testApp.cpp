@@ -7,7 +7,7 @@
 #define TWIG_MAX_LENGTH 50
 #define P_BIFURCATE 0.1
 #define P_GROW 0.15
-#define THICKNESS 3 
+#define THICKNESS 4 
 
 //--------------------------------------------------------------
 void testApp::setup() {

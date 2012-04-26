@@ -10,6 +10,7 @@
 #define treeTest_twig_h
 
 #include "ofMain.h"
+#include <cmath>
 
 class twig {
 public:

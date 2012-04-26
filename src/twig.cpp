@@ -72,8 +72,8 @@ void twig::grow() {
 }
 
 void twig::draw() {    
-    float start = (depth() - 1) / thickness_factor;
-    float end = depth() / thickness_factor;
+    float start = pow(depth() - 1, 1.5) / thickness_factor;
+    float end = pow(depth(), 1.5) / thickness_factor;
 
     ofPushMatrix();
     ofRotate(angle);
