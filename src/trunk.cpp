@@ -9,6 +9,7 @@
 #include "trunk.h"
 #include "util.h"
 #include <iostream>
+#include <cmath>
 
 trunk::trunk(float p_grow,
          float p_bifurcate,
@@ -17,16 +18,27 @@ trunk::trunk(float p_grow,
          float max_length,
          float max_size) : p_grow(p_grow), p_bifurcate(p_bifurcate), thickness_factor(thickness_factor), min_length(min_length), max_length(max_length), max_size(max_size) {
 
-    head = new twig(ofRandom(-5, 5), 5, p_grow, p_bifurcate, thickness_factor, 5, 10, 20);
+    main = new twig(0, 10, 1, 0, thickness_factor, 10, 15, 20);
+
+    for (int i = 0; i < 5; i++) {
+        head.push_back(new twig(ofRandom((i * 36) - 180, (i * 36) - 144), 5, p_grow, p_bifurcate, thickness_factor, 5, 10, 20));
+    }
+
     right_arm = new twig(0, 15, p_grow, p_bifurcate, thickness_factor, 10, 15, 20);
     left_arm = new twig(0, 15, p_grow, p_bifurcate, thickness_factor, 10, 15, 20);
     right_humorous = new twig(0, 15, p_grow, p_bifurcate, thickness_factor, 15, 20, 20);
     left_humorous = new twig(0, 15, p_grow, p_bifurcate, thickness_factor, 15, 20, 20);
     
-    while (head->size() < head->getMaxSize()) {
-        head->grow();
+    for (int i = 0; i < head.size(); i++) {
+        while (head[i]->size() < head[i]->getMaxSize()) {
+            head[i]->grow();
+        }
     }
     
+    while (main->size() < main->getMaxSize()) {
+        main->grow();
+    }
+
     while (right_arm->size() < right_arm->getMaxSize()) {
         right_arm->grow();
     }
@@ -65,15 +77,19 @@ trunk::trunk(float p_grow,
     right_elbow = new twig(ofRandom(20, 60), 5, p_grow, p_bifurcate, thickness_factor, min_length, max_length, max_size);
     right_hip = new twig(ofRandom(120, 185), 5, p_grow, p_bifurcate, thickness_factor, min_length, max_length, max_size);
     
-    for (int i = 0; i < 15; i++) {
-        float noise = ofRandom(-5, 5);
-        ofLogNotice() << ofToString(noise);
-        trunk_noise.push_back(noise);
-    }
+    main->append(right_shoulder);
+    main->append(left_shoulder);
+    main->append(right_hip);
+    main->append(left_hip);
 }
 
 trunk::~trunk() {
-    delete head;
+    for (int i = 0; i < head.size(); i++) {
+        delete head[i];
+    }
+    
+    head.clear();
+
     delete left_shoulder;
     delete right_shoulder;
     delete left_elbow;
@@ -82,6 +98,7 @@ trunk::~trunk() {
     delete right_arm;
     delete left_hip;
     delete right_hip;
+    delete main;
 }
 
 void trunk::draw(ofxTrackedUser user) {
@@ -103,20 +120,23 @@ void trunk::draw(ofxTrackedUser user) {
                                        user.left_lower_arm.position[1].X,
                                        user.left_lower_arm.position[1].Y));
 
+    for (int i = 0; i < head.size(); i++) {
+        drawTwig(user.neck, head[i]);
+    }
+
     drawTwig(user.right_upper_arm, right_humorous, true);
     drawTwig(user.left_upper_arm, left_humorous, true);
-    drawTwig(user.left_shoulder, left_shoulder);
-    drawTwig(user.left_upper_arm, left_elbow);
-    drawTwig(user.hip, left_hip);
-    drawTwig(user.right_shoulder, right_shoulder);
-    drawTwig(user.right_upper_arm, right_elbow);
-    drawTwig(user.hip, right_hip, true);
+//    drawTwig(user.left_shoulder, left_shoulder);
+//    drawTwig(user.left_upper_arm, left_elbow);
+//    drawTwig(user.hip, left_hip);
+//    drawTwig(user.right_shoulder, right_shoulder);
+//    drawTwig(user.right_upper_arm, right_elbow);
+//    drawTwig(user.hip, right_hip, true);
 
     ofPopStyle();
 }
 
 void trunk::grow() {
-    head->grow();
     left_shoulder->grow();
     left_elbow->grow();
     left_hip->grow();
@@ -126,7 +146,10 @@ void trunk::grow() {
 }
 
 void trunk::reset() {
-    head->clear();
+    for (int i = 0; i < head.size(); i++) {
+        head[i]->clear();
+    }
+    
     left_shoulder->clear();
     left_elbow->clear();
     left_hip->clear();
@@ -136,56 +159,12 @@ void trunk::reset() {
 }
 
 void trunk::drawTrunk(ofxTrackedUser user) {
-    if (user.left_shoulder.found && user.right_shoulder.found && user.hip.found) {
-        float foot_w = ofDist(user.hip.position[0].X, user.hip.position[0].Y,
-                              user.hip.position[1].X, user.hip.position[1].Y) / 2;
-
-        ofBeginShape();
-        
-        ofVertex(user.left_shoulder.position[1].X,
-                 user.left_shoulder.position[1].Y);
-        ofVertex(user.hip.position[0].X,
-                 user.hip.position[0].Y);
-        
-        if (user.left_upper_leg.found && user.right_upper_leg.found) {
-            ofVertex(user.left_upper_leg.position[1].X,
-                     user.left_upper_leg.position[1].Y);
-        
-            if (user.left_lower_leg.found) {
-                ofVertex(user.left_lower_leg.position[1].X,
-                         user.left_lower_leg.position[1].Y);
-                ofVertex(user.left_lower_leg.position[1].X + foot_w,
-                         user.left_lower_leg.position[1].Y);
-            }
-            
-            ofVertex(user.left_upper_leg.position[1].X + foot_w,
-                     user.left_upper_leg.position[1].Y);
-            ofVertex(user.hip.position[0].X + foot_w,
-                     user.hip.position[0].Y);
-            ofVertex(user.right_upper_leg.position[1].X - foot_w,
-                     user.right_upper_leg.position[1].Y);
-            
-            if (user.right_lower_leg.found) {
-                ofVertex(user.right_lower_leg.position[1].X - foot_w,
-                         user.right_lower_leg.position[1].Y);
-                ofVertex(user.right_lower_leg.position[1].X,
-                         user.right_lower_leg.position[1].Y);
-            }
-            
-            ofVertex(user.right_upper_leg.position[1].X,
-                     user.right_upper_leg.position[1].Y);
-        } else {
-            ofVertex(user.hip.position[0].X, ofGetHeight());
-            ofVertex(user.hip.position[1].X, ofGetHeight());
-        }
-        
-        ofVertex(user.hip.position[1].X,
-                 user.hip.position[1].Y);
-        ofVertex(user.right_shoulder.position[1].X,
-                 user.right_shoulder.position[1].Y);
-
-        ofEndShape();
-    }
+    ofPushMatrix();
+    
+    ofTranslate(user.left_lower_torso.position[0].X,
+                user.left_lower_torso.position[1].Y);
+    main->draw();
+    ofPopMatrix();
 }
 
 void trunk::drawTwig(ofxLimb limb, twig *t, bool asLimb) {

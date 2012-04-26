@@ -56,7 +56,9 @@ private:
     
     vector<float> trunk_noise;
 
-    twig *head;
+    vector<twig *> head;
+
+    twig *main;
     twig *left_shoulder;
     twig *left_elbow;
     twig *left_hip;
