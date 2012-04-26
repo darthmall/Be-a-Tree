@@ -105,14 +105,13 @@ void trunk::draw(ofxTrackedUser user) {
 
     drawTwig(user.right_upper_arm, right_humorous, true);
     drawTwig(user.left_upper_arm, left_humorous, true);
-    /*
     drawTwig(user.left_shoulder, left_shoulder);
     drawTwig(user.left_upper_arm, left_elbow);
     drawTwig(user.hip, left_hip);
     drawTwig(user.right_shoulder, right_shoulder);
     drawTwig(user.right_upper_arm, right_elbow);
     drawTwig(user.hip, right_hip, true);
-*/
+
     ofPopStyle();
 }
 
