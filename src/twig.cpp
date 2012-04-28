@@ -96,7 +96,7 @@ void twig::grow() {
                 right = growth;
             }            
         } else if (p < p_bifurcate && (left == NULL || right == NULL)) {
-            float growth_angle = ofRandom(15, 60);
+            float growth_angle = ofRandom(10, 20);
             twig *growth;
             
             // 50/50 chance to flip the sign on the angle

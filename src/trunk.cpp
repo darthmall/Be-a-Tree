@@ -23,57 +23,57 @@ max_length(max_length),
 max_size(max_size),
 growthRate(0.1) {
 
+    neck = new twig(ofRandom(15, 40), ofRandom(min_length, max_length), p_bifurcate, thickness_factor, min_length, max_length, max_size);
+    while (neck->size() < max_size) {
+        neck->grow();
+    }
+                    
     right_arm = new twig(0, 15, p_bifurcate, thickness_factor, 10, 15, 20);
-    left_arm = new twig(0, 15, p_bifurcate, thickness_factor, 10, 15, 20);
-    right_humorous = new twig(0, 15, p_bifurcate, thickness_factor, 15, 20, 20);
-    left_humorous = new twig(0, 15, p_bifurcate, thickness_factor, 15, 20, 20);
-
     while (right_arm->size() < right_arm->getMaxSize()) {
         right_arm->grow();
     }
-    right_arm->setGrown();
     
+    left_arm = new twig(0, 15, p_bifurcate, thickness_factor, 10, 15, 20);    
     while (left_arm->size() < left_arm->getMaxSize()) {
         left_arm->grow();
     }
-    left_arm->setGrown();
     
+    right_humorous = new twig(0, 15, p_bifurcate, thickness_factor, 15, 20, 20);    
     while (right_humorous->size() < right_humorous->getMaxSize()) {
         right_humorous->grow();
     }
-    right_humorous->setGrown();
 
+    left_humorous = new twig(0, 15, p_bifurcate, thickness_factor, 15, 20, 20);
     while (left_humorous->size() < left_humorous->getMaxSize()) {
         left_humorous->grow();
     }
-    left_humorous->setGrown();
-    
-    twig *t = right_humorous->find_node_at_depth(5);
-    if (t) {
-        t->concat(right_arm);
-    } else {
-        right_humorous->append(right_arm);
-    }
-    
-    t = left_humorous->find_node_at_depth(5);
-    if (t) {
-        t->concat(left_arm);
-    } else {
-        left_humorous->append(left_humorous);
-    }
 
-    lshoulder = new twig(ofRandom(-5, 5), ofRandom(min_length, max_length),
+    rshoulder = new twig(ofRandom(20, 50), ofRandom(min_length, max_length),
                          p_bifurcate, thickness_factor, min_length,
                          max_length, max_size);
-    while (lshoulder->size() < lshoulder->getMaxSize()) {
+    while (rshoulder->size() < max_size) {
+        rshoulder->grow();
+    }
+    
+    lshoulder = new twig(ofRandom(-50, -20), ofRandom(min_length, max_length),
+                         p_bifurcate, thickness_factor, min_length,
+                         max_length, max_size);
+    while (lshoulder->size() < max_size) {
         lshoulder->grow();
     }
-    
-    rshoulder = new twig(ofRandom(-5, 5), ofRandom(min_length, max_length),
+
+    lhip = new twig(ofRandom(-90, -70), ofRandom(min_length, max_length),
                          p_bifurcate, thickness_factor, min_length,
                          max_length, max_size);
-    while (rshoulder->size() < rshoulder->getMaxSize()) {
-        rshoulder->grow();
+    while (lhip->size() < lhip->getMaxSize()) {
+        lhip->grow();
+    }
+    
+    rhip = new twig(ofRandom(70, 90), ofRandom(min_length, max_length),
+                         p_bifurcate, thickness_factor, min_length,
+                         max_length, max_size);
+    while (rhip->size() < rhip->getMaxSize()) {
+        rhip->grow();
     }
 
     timestamp = ofGetElapsedTimef();
@@ -88,46 +88,34 @@ void trunk::draw(ofxTrackedUser user) {
     ofPushStyle();
     ofFill();
     ofSetHexColor(0x292E36);
-
-    drawTrunk(user);
-    right_arm->angle = ofRadToDeg(angle(user.right_upper_arm.position[0].X,
-                                        user.right_upper_arm.position[0].Y,
-                                        user.right_upper_arm.position[1].X,
-                                        user.right_upper_arm.position[1].Y,
-                                        user.right_lower_arm.position[1].X,
-                                        user.right_lower_arm.position[1].Y)) - 180;
-    left_arm->angle = 180 - ofRadToDeg(angle(user.left_upper_arm.position[0].X,
-                                       user.left_upper_arm.position[0].Y,
-                                       user.left_upper_arm.position[1].X,
-                                       user.left_upper_arm.position[1].Y,
-                                       user.left_lower_arm.position[1].X,
-                                       user.left_lower_arm.position[1].Y));
     
     drawTwig(user.left_upper_arm, left_humorous, true);
     drawTwig(user.right_upper_arm, right_humorous, true);
-    drawTwig(user.right_shoulder, rshoulder, true);
-    drawTwig(user.left_shoulder, lshoulder, true);
+    
+    ofPushMatrix();
+    ofTranslate(user.neck.position[0].X, user.neck.position[0].Y);
+    neck->draw();
+    ofPopMatrix();
 
-//    float angle = ofRadToDeg(limbAngle(user.right_upper_arm)) + 90;
-//    
-//    ofPushMatrix();        
-//    ofTranslate(user.left_lower_torso.position[0].X,
-//                user.right_upper_arm.position[0].Y);
-//    ofRotate(angle);
-//    
-//    right_humorous->draw();
-//    
-//    ofPopMatrix();
-//    
-//    ofPushMatrix();
-//    angle = max(110.f, ofRadToDeg(limbAngle(user.left_upper_arm)) + 90);
-//    ofTranslate(user.left_lower_torso.position[0].X,
-//                user.left_upper_arm.position[0].Y);
-//    ofRotate(angle);
-//    left_humorous->draw();
-//    ofPopMatrix();
-//    
-//    ofPopStyle();
+    ofPushMatrix();
+    ofTranslate(user.left_shoulder.position[1].X, user.left_shoulder.position[1].Y);
+    lshoulder->draw();
+    ofPopMatrix();
+    
+    ofPushMatrix();
+    ofTranslate(user.right_shoulder.position[1].X, user.right_shoulder.position[1].Y);
+    rshoulder->draw();
+    ofPopMatrix();
+
+    ofPushMatrix();
+    ofTranslate(user.hip.position[0].X, user.hip.position[0].Y);
+    lhip->draw();
+    ofPopMatrix();
+    
+    ofPushMatrix();
+    ofTranslate(user.hip.position[1].X, user.hip.position[1].Y);
+    rhip->draw();
+    ofPopMatrix();
 }
 
 void trunk::grow() {
@@ -139,13 +127,35 @@ void trunk::update() {
     
     if (now - timestamp >= growthRate) {
         timestamp = now;
-        lshoulder->update();
+        neck->update();
+        left_humorous->update();
+        right_humorous->update();
+        left_arm->update();
+        right_arm->update();
         rshoulder->update();
+        lshoulder->update();
+        lhip->update();
+        rhip->update();
     }
 }
 
 void trunk::reset() {
+    reset(neck);
+    reset(rshoulder);
+    reset(lshoulder);
+    reset(right_humorous);
+    reset(left_humorous);
+    reset(right_arm);
+    reset(left_arm);
+    reset(rhip);
+    reset(lhip);
+}
 
+void trunk::reset(twig *t) {
+    t->clear();
+    while (t->size() < t->getMaxSize()) {
+        t->grow();
+    }
 }
 
 void trunk::drawTrunk(ofxTrackedUser user) {

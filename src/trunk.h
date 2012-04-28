@@ -26,6 +26,7 @@ public:
 
     void update();
     void reset();
+    void reset(twig *t);
     void grow();
     void draw(ofxTrackedUser user);
     
@@ -54,11 +55,14 @@ private:
     float max_length;
     float max_size;
 
+    twig *neck;
     twig *right_humorous;
     twig *left_humorous;
     twig *right_arm;
     twig *left_arm;
 
+    twig *lhip;
+    twig *rhip;
     twig *lshoulder;
     twig *rshoulder;
     

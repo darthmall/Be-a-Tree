@@ -3,9 +3,9 @@
 #include <cmath>
 
 #define TWIG_MAX_SIZE 33
-#define TWIG_MIN_LENGTH 20
-#define TWIG_MAX_LENGTH 50
-#define P_BIFURCATE 0.1
+#define TWIG_MIN_LENGTH 10
+#define TWIG_MAX_LENGTH 15
+#define P_BIFURCATE 0.3
 #define THICKNESS 4 
 
 
@@ -18,7 +18,7 @@ void testApp::setup() {
     filterFactor = 0.1f;
 
     // Playback from a video file for testing
-    context.setupUsingRecording(ofToDataPath("test2.oni"));
+    context.setupUsingRecording(ofToDataPath("test.oni"));
     depthGenerator.setup(&context);
     imageGenerator.setup(&context);
     userGenerator.setup(&context);
@@ -59,6 +59,8 @@ void testApp::update(){
 
         if (armsRaised(*userGenerator.getTrackedUser(1))) {
             tree->update();            
+        } else {
+            tree->reset();
         }
     }
 }
