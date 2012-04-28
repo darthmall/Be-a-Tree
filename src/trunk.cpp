@@ -28,7 +28,7 @@ growthRate(0.1) {
         neck->grow();
     }
                     
-    right_arm = new twig(0, 15, p_bifurcate, thickness_factor, 10, 15, 20);
+    right_arm = new twig(70, ofRandom(min_length, max_length), p_bifurcate, thickness_factor, 10, 15, 20);
     while (right_arm->size() < right_arm->getMaxSize()) {
         right_arm->grow();
     }
@@ -38,12 +38,12 @@ growthRate(0.1) {
         left_arm->grow();
     }
     
-    right_humorous = new twig(0, 15, p_bifurcate, thickness_factor, 15, 20, 20);    
+    right_humorous = new twig(-20, ofRandom(min_length, max_length), p_bifurcate, thickness_factor, min_length, max_length, 20);    
     while (right_humorous->size() < right_humorous->getMaxSize()) {
         right_humorous->grow();
     }
 
-    left_humorous = new twig(0, 15, p_bifurcate, thickness_factor, 15, 20, 20);
+    left_humorous = new twig(20, ofRandom(min_length, max_length), p_bifurcate, thickness_factor, min_length, max_length, 20);
     while (left_humorous->size() < left_humorous->getMaxSize()) {
         left_humorous->grow();
     }
@@ -93,7 +93,7 @@ void trunk::draw(ofxTrackedUser user) {
     drawTwig(user.right_upper_arm, right_humorous, true);
     
     ofPushMatrix();
-    ofTranslate(user.neck.position[0].X, user.neck.position[0].Y);
+    ofTranslate(user.neck.position[1].X, user.neck.position[1].Y);
     neck->draw();
     ofPopMatrix();
 

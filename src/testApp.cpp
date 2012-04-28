@@ -18,7 +18,7 @@ void testApp::setup() {
     filterFactor = 0.1f;
 
     // Playback from a video file for testing
-    context.setupUsingRecording(ofToDataPath("test.oni"));
+    context.setupUsingRecording(ofToDataPath("test2.oni"));
     depthGenerator.setup(&context);
     imageGenerator.setup(&context);
     userGenerator.setup(&context);
