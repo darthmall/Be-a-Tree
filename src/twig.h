@@ -68,11 +68,15 @@ protected:
     
     bool grown;
 
+    ofPoint contour[4];
+
     twig *parent;
     twig *left;
     twig *right;
     
     twig *find_node_at_depth(int d, int current_depth);
+    
+    vector<ofPoint> blossoms;
 };
 
 

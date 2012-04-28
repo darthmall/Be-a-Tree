@@ -53,13 +53,16 @@ private:
     float min_length;
     float max_length;
     float max_size;
-    
-    twig *main;
+
     twig *right_humorous;
     twig *left_humorous;
     twig *right_arm;
     twig *left_arm;
 
+    twig *lshoulder;
+    twig *rshoulder;
+    
+    twig *main;
 };
 
 #endif

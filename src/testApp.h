@@ -34,7 +34,7 @@ private:
     ofxUserGenerator userGenerator;
 
     ofxCv::ContourFinder contourFinder;
-
+    
     // For the user generator
     float filterFactor;
 

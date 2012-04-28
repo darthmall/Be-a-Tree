@@ -7,6 +7,7 @@
 //
 
 #include "twig.h"
+#include "util.h"
 #include <iostream>
 #include <cmath>
 
@@ -17,17 +18,17 @@ twig::twig(float angle,
            float min_length,
            float max_length,
            float max_size) :
-        angle(angle),
-        length(length),
-        p_bifurcate(p_bifurcate),
-        thickness_factor(thickness_factor),
-        min_length(min_length),
-        max_length(max_length),
-        max_size(max_size),
-        grown(false),
-        left(NULL),
-        right(NULL),
-        parent(NULL) {}
+angle(angle),
+length(length),
+p_bifurcate(p_bifurcate),
+thickness_factor(thickness_factor),
+min_length(min_length),
+max_length(max_length),
+max_size(max_size),
+grown(false),
+left(NULL),
+right(NULL),
+parent(NULL) {}
 
 twig::~twig() {
     clear();
@@ -45,10 +46,29 @@ void twig::update() {
             left->update();
         } else if (right) {
             right->update();
+        } else if (blossoms.size() < 7) {
+            ofPoint p;
+            p.x = ofRandom(-5, 5);
+            p.y = ofRandom(-5, 3);
+            
+            blossoms.push_back(p);
         }
     } else {
         grown = true;
     }
+
+    // Calculate the new points for the contour outline of the branch.
+    float base = pow(depth() + 1, 1.5) / thickness_factor;
+    float tip = pow(depth(), 1.5) / thickness_factor;
+    
+    contour[0].x = -(base / 2);
+    contour[0].y = 0;
+    contour[1].x = base / 2;
+    contour[1].y = 0;
+    contour[2].x = tip / 2;
+    contour[2].y = -length;
+    contour[3].x = -tip / 2;
+    contour[3].y = -length;
 }
 
 void twig::grow() {
@@ -63,7 +83,7 @@ void twig::grow() {
         }
         
         float p = ofRandom(1);
-
+        
         if (left == NULL && right == NULL) {
             twig *growth = new twig(ofRandom(-5, 5), ofRandom(min_length, max_length), p_bifurcate, thickness_factor, min_length, max_length, max_size);
             growth->parent = this;
@@ -97,21 +117,16 @@ void twig::grow() {
 
 void twig::draw() {
     if (grown) {
-        float start = pow(depth() - 1, 1.5) / thickness_factor;
-        float end = pow(depth(), 1.5) / thickness_factor;
-
         ofPushMatrix();
         ofRotate(angle);
-        
-        // FIXME: use split angles to align polygons
+
         // Draw me
         ofBeginShape();
-        ofVertex(-end / 2, 0);
-        ofVertex(-start / 2, -length);
-        ofVertex(start / 2, -length);
-        ofVertex(end / 2, 0);
+        for (int i = 0; i < 4; i++) {
+            ofVertex(contour[i]);
+        }
         ofEndShape();
-
+        
         // Draw children
         ofTranslate(0, -length);
         if (left) {
@@ -121,7 +136,17 @@ void twig::draw() {
         if (right) {
             right->draw();
         }
+        
+        ofPushStyle();
+        ofEnableAlphaBlending();
+        ofSetColor(232, 91, 135, 177);
 
+        for (int i = 0; i < blossoms.size(); i++) {
+            ofCircle(blossoms[i].x, blossoms[i].y, 4);
+        }
+
+        ofDisableAlphaBlending();
+        ofPopStyle();
         ofPopMatrix();
     }
 }
@@ -172,7 +197,7 @@ twig *twig::find_node_at_depth(int d, int current_depth) {
     if (!ret_val && right) {
         ret_val = right->find_node_at_depth(d, current_depth + 1);
     }
-
+    
     return ret_val;
 }
 

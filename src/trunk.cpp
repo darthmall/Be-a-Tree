@@ -12,29 +12,21 @@
 #include <cmath>
 
 trunk::trunk(float p_bifurcate,
-         float thickness_factor,
-         float min_length,
-         float max_length,
-         float max_size) :
-        p_bifurcate(p_bifurcate),
-        thickness_factor(thickness_factor),
-        min_length(min_length),
-        max_length(max_length),
-        max_size(max_size),
-        growthRate(0.1) {
-
-    main = new twig(0, 10, 0, thickness_factor, 10, 15, 20);
+             float thickness_factor,
+             float min_length,
+             float max_length,
+             float max_size) :
+p_bifurcate(p_bifurcate),
+thickness_factor(thickness_factor),
+min_length(min_length),
+max_length(max_length),
+max_size(max_size),
+growthRate(0.1) {
 
     right_arm = new twig(0, 15, p_bifurcate, thickness_factor, 10, 15, 20);
     left_arm = new twig(0, 15, p_bifurcate, thickness_factor, 10, 15, 20);
     right_humorous = new twig(0, 15, p_bifurcate, thickness_factor, 15, 20, 20);
     left_humorous = new twig(0, 15, p_bifurcate, thickness_factor, 15, 20, 20);
-
-    while (main->size() < main->getMaxSize()) {
-        main->grow();
-    }
-
-    main->setGrown();
 
     while (right_arm->size() < right_arm->getMaxSize()) {
         right_arm->grow();
@@ -69,32 +61,33 @@ trunk::trunk(float p_bifurcate,
     } else {
         left_humorous->append(left_humorous);
     }
-    
-    for (int i = 0; i < 8; i++) {
-        float angle = (i > 5) ? ofRandom(-45, 45) : ofRandom(-20, 20);
-        twig *t = new twig(angle,
-                           ofRandom(min_length, max_length),
-                           p_bifurcate, thickness_factor,
-                           min_length, max_length, max_size);
-        while (t->size() < t->getMaxSize()) {
-            t->grow();
-        }
-        main->find_node_at_depth(4)->append(t);
+
+    lshoulder = new twig(ofRandom(-5, 5), ofRandom(min_length, max_length),
+                         p_bifurcate, thickness_factor, min_length,
+                         max_length, max_size);
+    while (lshoulder->size() < lshoulder->getMaxSize()) {
+        lshoulder->grow();
     }
-            
+    
+    rshoulder = new twig(ofRandom(-5, 5), ofRandom(min_length, max_length),
+                         p_bifurcate, thickness_factor, min_length,
+                         max_length, max_size);
+    while (rshoulder->size() < rshoulder->getMaxSize()) {
+        rshoulder->grow();
+    }
+
     timestamp = ofGetElapsedTimef();
 }
 
 trunk::~trunk() {
     delete left_arm;
     delete right_arm;
-    delete main;
 }
 
 void trunk::draw(ofxTrackedUser user) {
     ofPushStyle();
     ofFill();
-    ofSetHexColor(0x5F6273);
+    ofSetHexColor(0x292E36);
 
     drawTrunk(user);
     right_arm->angle = ofRadToDeg(angle(user.right_upper_arm.position[0].X,
@@ -109,39 +102,45 @@ void trunk::draw(ofxTrackedUser user) {
                                        user.left_upper_arm.position[1].Y,
                                        user.left_lower_arm.position[1].X,
                                        user.left_lower_arm.position[1].Y));
+    
+    drawTwig(user.left_upper_arm, left_humorous, true);
+    drawTwig(user.right_upper_arm, right_humorous, true);
+    drawTwig(user.right_shoulder, rshoulder, true);
+    drawTwig(user.left_shoulder, lshoulder, true);
 
-    float angle = ofRadToDeg(limbAngle(user.right_upper_arm)) + 90;
-    
-    ofPushMatrix();        
-    ofTranslate(user.left_lower_torso.position[0].X,
-                user.right_upper_arm.position[0].Y);
-    ofRotate(angle);
-    
-    right_humorous->draw();
-    
-    ofPopMatrix();
-    
-    ofPushMatrix();
-    angle = max(110.f, ofRadToDeg(limbAngle(user.left_upper_arm)) + 90);
-    ofTranslate(user.left_lower_torso.position[0].X,
-                user.left_upper_arm.position[0].Y);
-    ofRotate(angle);
-    left_humorous->draw();
-    ofPopMatrix();
-    
-    ofPopStyle();
+//    float angle = ofRadToDeg(limbAngle(user.right_upper_arm)) + 90;
+//    
+//    ofPushMatrix();        
+//    ofTranslate(user.left_lower_torso.position[0].X,
+//                user.right_upper_arm.position[0].Y);
+//    ofRotate(angle);
+//    
+//    right_humorous->draw();
+//    
+//    ofPopMatrix();
+//    
+//    ofPushMatrix();
+//    angle = max(110.f, ofRadToDeg(limbAngle(user.left_upper_arm)) + 90);
+//    ofTranslate(user.left_lower_torso.position[0].X,
+//                user.left_upper_arm.position[0].Y);
+//    ofRotate(angle);
+//    left_humorous->draw();
+//    ofPopMatrix();
+//    
+//    ofPopStyle();
 }
 
 void trunk::grow() {
-    main->grow();
+
 }
 
 void trunk::update() {
     float now = ofGetElapsedTimef();
     
     if (now - timestamp >= growthRate) {
-        main->update();
         timestamp = now;
+        lshoulder->update();
+        rshoulder->update();
     }
 }
 
@@ -151,10 +150,8 @@ void trunk::reset() {
 
 void trunk::drawTrunk(ofxTrackedUser user) {
     ofPushMatrix();
-    
     ofTranslate(user.left_lower_torso.position[0].X,
                 user.left_lower_torso.position[1].Y);
-    main->draw();
     ofPopMatrix();
 }
 

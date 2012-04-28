@@ -114,20 +114,22 @@ void testApp::draw(){
     if (userGenerator.getNumberOfTrackedUsers() > 0) {
         tree->draw(*userGenerator.getTrackedUser(1));
 
-        ofPushStyle();
-        ofFill();
-        ofSetHexColor(0x5F6273);
-        vector<vector<cv::Point> > contours = contourFinder.getContours();
-        for (int i = 0; i < contours.size(); i++) {
-            vector<cv::Point> contour = contours[i];
-            
-            ofBeginShape();
-            for (int j = 0; j < contour.size(); j++) {
-                ofVertex(contour[j].x, contour[j].y);
+        if (!debug) {
+            ofPushStyle();
+            ofFill();
+            ofSetHexColor(0x292E36);
+            vector<vector<cv::Point> > contours = contourFinder.getContours();
+            for (int i = 0; i < contours.size(); i++) {
+                vector<cv::Point> contour = contours[i];
+                
+                ofBeginShape();
+                for (int j = 0; j < contour.size(); j++) {
+                    ofVertex(contour[j].x, contour[j].y);
+                }
+                ofEndShape();
             }
-            ofEndShape();
+            ofPopStyle();
         }
-        ofPopStyle();
     }
 }
 
