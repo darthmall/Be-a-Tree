@@ -99,7 +99,7 @@ void trunk::draw(ofxTrackedUser user) {
     ofPushMatrix();
     ofTranslate(user.left_upper_arm.position[0].X + ((l / 2) * cos(angle)),
                 user.left_upper_arm.position[0].Y + ((l / 2) * sin(angle)));
-    ofRotate(angle);
+    ofRotate(ofRadToDeg(angle) - 270);
     left_humorous->draw();
     ofPopMatrix();
     
@@ -112,7 +112,7 @@ void trunk::draw(ofxTrackedUser user) {
     ofPushMatrix();
     ofTranslate(user.right_upper_arm.position[0].X + ((l / 2) * cos(angle)),
                 user.right_upper_arm.position[0].Y + ((l / 2) * sin(angle)));
-    ofRotate(angle);
+    ofRotate(ofRadToDeg(angle) + 90);
     right_humorous->draw();
     ofPopMatrix();
 

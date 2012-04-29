@@ -5,7 +5,7 @@
 #define TWIG_MAX_SIZE 130
 #define TWIG_MIN_LENGTH 10
 #define TWIG_MAX_LENGTH 15
-#define P_BIFURCATE 0.45
+#define P_BIFURCATE 0.33
 #define THICKNESS 2.75
 #define SCALE 1.5
 
