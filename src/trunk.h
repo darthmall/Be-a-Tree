@@ -17,10 +17,11 @@ class trunk {
 public:
     
     trunk(float p_bifurcate,
-        float thickness_factor,
-        float min_length,
-        float max_length,
-        float max_size);
+          float scale,
+          float thickness_factor,
+          float min_length,
+          float max_length,
+          float max_size);
 
     ~trunk();
 
@@ -32,6 +33,7 @@ public:
     
     void setPBifurcate(float p);
     void setThicknessFactor(float factor);
+    void setScale(float s);
     void setMinLength(float l);
     void setMaxLength(float l);
     void setMaxSize(float s);
@@ -41,6 +43,7 @@ public:
     float getMinLength();
     float getMaxLength();
     float getMaxSize();
+    float getScale();
 
     float growthRate;
 
@@ -54,6 +57,7 @@ private:
     float min_length;
     float max_length;
     float max_size;
+    float scale;
 
     twig *neck;
     twig *right_humorous;

@@ -12,65 +12,67 @@
 #include <cmath>
 
 trunk::trunk(float p_bifurcate,
+             float scale,
              float thickness_factor,
              float min_length,
              float max_length,
              float max_size) :
 p_bifurcate(p_bifurcate),
+scale(scale),
 thickness_factor(thickness_factor),
 min_length(min_length),
 max_length(max_length),
 max_size(max_size),
 growthRate(0.1) {
 
-    neck = new twig(ofRandom(15, 40), ofRandom(min_length, max_length), p_bifurcate, thickness_factor, min_length, max_length, max_size);
+    neck = new twig(ofRandom(15, 40), ofRandom(min_length, max_length), p_bifurcate, scale, thickness_factor, min_length, max_length, max_size);
     while (neck->size() < max_size) {
         neck->grow();
     }
                     
-    right_arm = new twig(70, ofRandom(min_length, max_length), p_bifurcate, thickness_factor, 10, 15, 20);
+    right_arm = new twig(-5, ofRandom(min_length, max_length), p_bifurcate, scale, thickness_factor, 10, 15, 20);
     while (right_arm->size() < right_arm->getMaxSize()) {
         right_arm->grow();
     }
     
-    left_arm = new twig(0, 15, p_bifurcate, thickness_factor, 10, 15, 20);    
+    left_arm = new twig(5, 15, p_bifurcate, scale, thickness_factor, 10, 15, 20);    
     while (left_arm->size() < left_arm->getMaxSize()) {
         left_arm->grow();
     }
     
-    right_humorous = new twig(-20, ofRandom(min_length, max_length), p_bifurcate, thickness_factor, min_length, max_length, 20);    
+    right_humorous = new twig(-20, ofRandom(min_length, max_length), p_bifurcate, scale, thickness_factor, min_length, max_length, 20);    
     while (right_humorous->size() < right_humorous->getMaxSize()) {
         right_humorous->grow();
     }
 
-    left_humorous = new twig(20, ofRandom(min_length, max_length), p_bifurcate, thickness_factor, min_length, max_length, 20);
+    left_humorous = new twig(20, ofRandom(min_length, max_length), p_bifurcate, scale, thickness_factor, min_length, max_length, 20);
     while (left_humorous->size() < left_humorous->getMaxSize()) {
         left_humorous->grow();
     }
 
     rshoulder = new twig(ofRandom(20, 50), ofRandom(min_length, max_length),
-                         p_bifurcate, thickness_factor, min_length,
+                         p_bifurcate, scale, thickness_factor, min_length,
                          max_length, max_size);
     while (rshoulder->size() < max_size) {
         rshoulder->grow();
     }
     
     lshoulder = new twig(ofRandom(-50, -20), ofRandom(min_length, max_length),
-                         p_bifurcate, thickness_factor, min_length,
+                         p_bifurcate, scale, thickness_factor, min_length,
                          max_length, max_size);
     while (lshoulder->size() < max_size) {
         lshoulder->grow();
     }
 
     lhip = new twig(ofRandom(-90, -70), ofRandom(min_length, max_length),
-                         p_bifurcate, thickness_factor, min_length,
+                         p_bifurcate, scale, thickness_factor, min_length,
                          max_length, max_size);
     while (lhip->size() < lhip->getMaxSize()) {
         lhip->grow();
     }
     
     rhip = new twig(ofRandom(70, 90), ofRandom(min_length, max_length),
-                         p_bifurcate, thickness_factor, min_length,
+                         p_bifurcate, scale, thickness_factor, min_length,
                          max_length, max_size);
     while (rhip->size() < rhip->getMaxSize()) {
         rhip->grow();
@@ -89,8 +91,33 @@ void trunk::draw(ofxTrackedUser user) {
     ofFill();
     ofSetHexColor(0x292E36);
     
-    drawTwig(user.left_upper_arm, left_humorous, true);
-    drawTwig(user.right_upper_arm, right_humorous, true);
+    float angle = limbAngle(user.left_upper_arm);
+    float l = ofDist(user.left_upper_arm.position[0].X,
+                     user.left_upper_arm.position[0].Y,
+                     user.left_upper_arm.position[1].X,
+                     user.left_upper_arm.position[1].Y);
+    ofPushMatrix();
+    ofTranslate(user.left_upper_arm.position[0].X + ((l / 2) * cos(angle)),
+                user.left_upper_arm.position[0].Y + ((l / 2) * sin(angle)));
+    ofRotate(angle);
+    left_humorous->draw();
+    ofPopMatrix();
+    
+    angle = limbAngle(user.right_upper_arm);
+    l = ofDist(user.right_upper_arm.position[0].X,
+               user.right_upper_arm.position[0].Y,
+               user.right_upper_arm.position[1].X,
+               user.right_upper_arm.position[1].Y);
+
+    ofPushMatrix();
+    ofTranslate(user.right_upper_arm.position[0].X + ((l / 2) * cos(angle)),
+                user.right_upper_arm.position[0].Y + ((l / 2) * sin(angle)));
+    ofRotate(angle);
+    right_humorous->draw();
+    ofPopMatrix();
+
+    drawTwig(user.left_lower_arm, left_arm, true);
+    drawTwig(user.right_lower_arm, right_arm, true);
     
     ofPushMatrix();
     ofTranslate(user.neck.position[1].X, user.neck.position[1].Y);
@@ -192,22 +219,241 @@ void trunk::drawTwig(ofxLimb limb, twig *t, bool asLimb) {
 
 void trunk::setPBifurcate(float p) {
     p_bifurcate = p;
+    
+    if (neck) {
+        neck->setPBifurcate(p);
+    }
+    
+    if (right_humorous) {
+        right_humorous->setPBifurcate(p);
+    }
+    
+    if (left_humorous) {
+        left_humorous->setPBifurcate(p);
+    }
+    
+    if (right_arm) {
+        right_arm->setPBifurcate(p);
+    }
+    
+    if (left_arm) {
+        left_arm->setPBifurcate(p);
+    }
+    
+    if (rhip) {
+        rhip->setPBifurcate(p);
+    }
+    
+    if (lhip) {
+        lhip->setPBifurcate(p);
+    }
+    
+    if (rshoulder) {
+        rshoulder->setPBifurcate(p);
+    }
+    
+    if (lshoulder) {
+        lshoulder->setPBifurcate(p);
+    }
 }
 
 void trunk::setThicknessFactor(float factor) {
     thickness_factor = factor;
+    
+    if (neck) {
+        neck->setThicknessFactor(factor);
+    }
+    
+    if (right_humorous) {
+        right_humorous->setThicknessFactor(factor);
+    }
+    
+    if (left_humorous) {
+        left_humorous->setThicknessFactor(factor);
+    }
+    
+    if (right_arm) {
+        right_arm->setThicknessFactor(factor);
+    }
+    
+    if (left_arm) {
+        left_arm->setThicknessFactor(factor);
+    }
+    
+    if (rhip) {
+        rhip->setThicknessFactor(factor);
+    }
+    
+    if (lhip) {
+        lhip->setThicknessFactor(factor);
+    }
+    
+    if (rshoulder) {
+        rshoulder->setThicknessFactor(factor);
+    }
+    
+    if (lshoulder) {
+        lshoulder->setThicknessFactor(factor);
+    }
 }
 
 void trunk::setMinLength(float l) {
     min_length = l;
+    
+    if (neck) {
+        neck->setMinLength(l);
+    }
+    
+    if (right_humorous) {
+        right_humorous->setMinLength(l);
+    }
+    
+    if (left_humorous) {
+        left_humorous->setMinLength(l);
+    }
+    
+    if (right_arm) {
+        right_arm->setMinLength(l);
+    }
+    
+    if (left_arm) {
+        left_arm->setMinLength(l);
+    }
+    
+    if (rhip) {
+        rhip->setMinLength(l);
+    }
+    
+    if (lhip) {
+        lhip->setMinLength(l);
+    }
+    
+    if (rshoulder) {
+        rshoulder->setMinLength(l);
+    }
+    
+    if (lshoulder) {
+        lshoulder->setMinLength(l);
+    }
 }
 
 void trunk::setMaxLength(float l) {
     max_length = l;
+    
+    if (neck) {
+        neck->setMaxLength(l);
+    }
+    
+    if (right_humorous) {
+        right_humorous->setMaxLength(l);
+    }
+    
+    if (left_humorous) {
+        left_humorous->setMaxLength(l);
+    }
+    
+    if (right_humorous) {
+        right_arm->setMaxLength(l);
+    }
+    
+    if (left_arm) {
+        left_arm->setMaxLength(l);
+    }
+    
+    if (rhip) {
+        rhip->setMaxLength(l);
+    }
+    
+    if (lhip) {
+        lhip->setMaxLength(l);
+    }
+    
+    if (rshoulder) {
+        rshoulder->setMaxLength(l);
+    }
+    
+    if (lshoulder) {
+        lshoulder->setMaxLength(l);
+    }
 }
 
 void trunk::setMaxSize(float s) {
     max_size = s;
+    
+    if (neck) {
+        neck->setMaxSize(s);
+    }
+    
+    if (right_humorous) {
+        right_humorous->setMaxSize(s);
+    }
+    
+    if (left_humorous) {
+        left_humorous->setMaxSize(s);
+    }
+    
+    if (right_arm) {
+        right_arm->setMaxSize(s);
+    }
+    
+    if (left_arm) {
+        left_arm->setMaxSize(s);
+    }
+    
+    if (lhip) {
+        lhip->setMaxSize(s);
+    }
+    
+    if (rhip) {
+        rhip->setMaxSize(s);
+    }
+    
+    if (lshoulder) {
+        lshoulder->setMaxSize(s);
+    }
+    
+    if (rshoulder) {
+        rshoulder->setMaxSize(s);
+    }
+}
+
+void trunk::setScale(float s) {
+    scale = s;
+    
+    if (neck) {
+        neck->setScale(s);
+    }
+    
+    if (right_humorous) {
+        right_humorous->setScale(s);
+    }
+    
+    if (left_humorous) {
+        left_humorous->setScale(s);
+    }
+    if (right_arm) {
+        right_arm->setScale(s);
+    }
+    
+    if (left_arm) {
+        left_arm->setScale(s);
+    }
+    
+    if (lhip) {
+        lhip->setScale(s);
+    }
+    
+    if (rhip) {
+        rhip->setScale(s);
+    }
+    
+    if (lshoulder) {
+        lshoulder->setScale(s);
+    }
+    
+    if (rshoulder) {
+        rshoulder->setScale(s);
+    }
 }
 
 float trunk::getPBifurcate() {
@@ -228,4 +474,8 @@ float trunk::getMaxLength() {
 
 float trunk::getMaxSize() {
     return max_size;
+}
+
+float trunk::getScale() {
+    return scale;
 }

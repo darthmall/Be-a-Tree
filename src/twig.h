@@ -19,6 +19,7 @@ public:
     twig(float angle,
          float length,
          float p_bifurcate,
+         float thickness_scale,
          float thickness_factor,
          float min_length,
          float max_length,
@@ -56,7 +57,9 @@ public:
     void setMaxSize(float s);
     float getMaxSize();
     
-    
+    void setScale(float s);
+    float getScale();
+
 protected:    
     float p_bifurcate;
     float thickness_factor;
@@ -65,6 +68,7 @@ protected:
     float angle;
     float length;
     float max_size;
+    float scale;
     
     bool grown;
 

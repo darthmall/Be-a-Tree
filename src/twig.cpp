@@ -14,6 +14,7 @@
 twig::twig(float angle,
            float length,
            float p_bifurcate,
+           float thickness_scale,
            float thickness_factor,
            float min_length,
            float max_length,
@@ -21,6 +22,7 @@ twig::twig(float angle,
 angle(angle),
 length(length),
 p_bifurcate(p_bifurcate),
+scale(thickness_scale),
 thickness_factor(thickness_factor),
 min_length(min_length),
 max_length(max_length),
@@ -58,8 +60,8 @@ void twig::update() {
     }
 
     // Calculate the new points for the contour outline of the branch.
-    float base = pow(depth() + 1, 1.5) / thickness_factor;
-    float tip = pow(depth(), 1.5) / thickness_factor;
+    float base = pow(depth() + 1, scale) / thickness_factor;
+    float tip = pow(depth(), scale) / thickness_factor;
     
     contour[0].x = -(base / 2);
     contour[0].y = 0;
@@ -85,7 +87,7 @@ void twig::grow() {
         float p = ofRandom(1);
         
         if (left == NULL && right == NULL) {
-            twig *growth = new twig(ofRandom(-5, 5), ofRandom(min_length, max_length), p_bifurcate, thickness_factor, min_length, max_length, max_size);
+            twig *growth = new twig(ofRandom(-5, 5), ofRandom(min_length, max_length), p_bifurcate, scale, thickness_factor, min_length, max_length, max_size);
             growth->parent = this;
             
             if (growth->angle < 0) {
@@ -104,7 +106,7 @@ void twig::grow() {
                 growth_angle *= -1;
             }
             
-            growth = new twig(growth_angle, ofRandom(min_length, max_length), p_bifurcate, thickness_factor, min_length, max_length, max_size);
+            growth = new twig(growth_angle, ofRandom(min_length, max_length), p_bifurcate, scale, thickness_factor, min_length, max_length, max_size);
             growth->parent = this;
             if (growth_angle < 0) {
                 left = growth;
@@ -326,4 +328,20 @@ void twig::setMaxSize(float s) {
 
 float twig::getMaxSize() {
     return max_size;
+}
+
+void twig::setScale(float s) {
+    scale = s;
+    
+    if (left) {
+        left->setScale(s);
+    }
+    
+    if (right) {
+        right->setScale(s);
+    }
+}
+
+float twig::getScale() {
+    return scale;
 }
