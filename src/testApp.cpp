@@ -3,8 +3,8 @@
 #include <cmath>
 
 #define TWIG_MAX_SIZE 130
-#define TWIG_MIN_LENGTH 10
-#define TWIG_MAX_LENGTH 15
+#define TWIG_MIN_LENGTH 13
+#define TWIG_MAX_LENGTH 25
 #define P_BIFURCATE 0.33
 #define THICKNESS 2.75
 #define SCALE 1.5
@@ -14,6 +14,7 @@
 void testApp::setup() {
     ofSetLogLevel(OF_LOG_NOTICE);
     debug = false;
+    fullscreen = false;
 
     // Set up and configure the Kinect
     filterFactor = 0.1f;
@@ -53,21 +54,23 @@ void testApp::setup() {
 void testApp::update(){
     ofBackgroundHex(0x5F6273);
     
-    context.update();
-    depthGenerator.update();
-    imageGenerator.update();
-    userGenerator.update();
-    
-    if (userGenerator.getNumberOfTrackedUsers() > 0) {
-        ofImage mask;
-        mask.setFromPixels(userGenerator.getUserPixels(), 640, 480, OF_IMAGE_GRAYSCALE);
+    if (!paused) {
+        context.update();
+        depthGenerator.update();
+        imageGenerator.update();
+        userGenerator.update();
         
-        contourFinder.findContours(mask);
+        if (userGenerator.getNumberOfTrackedUsers() > 0) {
+            ofImage mask;
+            mask.setFromPixels(userGenerator.getUserPixels(), 640, 480, OF_IMAGE_GRAYSCALE);
+            
+            contourFinder.findContours(mask);
 
-        if (armsRaised(*userGenerator.getTrackedUser(1))) {
-            tree->update();            
-        } else {
-            tree->reset();
+            if (armsRaised(*userGenerator.getTrackedUser(1))) {
+                tree->update();            
+            } else {
+                tree->reset();
+            }
         }
     }
 }
@@ -80,10 +83,17 @@ void testApp::draw(){
         user = userGenerator.getTrackedUser(1);
     }
     
+    ofPushMatrix();
+    
+    if (fullscreen) {
+        float x = ofGetWindowHeight() / 480.f;
+        ofScale(x, x);
+    }
+    
     ofSetColor(226, 225, 233);
     ofRect(0, 0, 640, 480);
     
-    if (debug) {
+    if (debug && !fullscreen) {
         ofPushMatrix();
         ofTranslate(0, 490);
         ofScale(0.5f, 0.5f);
@@ -133,13 +143,15 @@ void testApp::draw(){
                 
                 ofBeginShape();
                 for (int j = 0; j < contour.size(); j++) {
-                    ofVertex(contour[j].x, contour[j].y);
+                    ofCurveVertex(contour[j].x, contour[j].y);
                 }
                 ofEndShape();
             }
             ofPopStyle();
         }
     }
+    
+    ofPopMatrix();
 }
 
 bool testApp::armsRaised(ofxTrackedUser user) {
@@ -183,6 +195,19 @@ void testApp::keyPressed(int key){
             debug = !debug;
             break;
             
+        case 'f':
+            fullscreen = !fullscreen;
+            if (fullscreen) {
+                gui->disable();
+            } else {
+                gui->enable();
+            }
+            ofSetFullscreen(fullscreen);
+            break;
+            
+        case ' ':
+            paused = !paused;
+            break;
         default:
             break;
     }

@@ -123,11 +123,6 @@
 		7E128BF015498C03008B4455 /* Wrappers.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Wrappers.cpp; sourceTree = "<group>"; };
 		7E128BF315498C03008B4455 /* ofxCv.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxCv.h; sourceTree = "<group>"; };
 		7E128CCE15498FFF008B4455 /* opencv.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = opencv.a; path = ../../../addons/ofxOpenCv/libs/opencv/lib/osx/opencv.a; sourceTree = "<group>"; };
-		7E128CD215499CE8008B4455 /* convexHull.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = convexHull.h; sourceTree = "<group>"; };
-		7E128CD315499CE8008B4455 /* polylineSimplify.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = polylineSimplify.h; sourceTree = "<group>"; };
-		7E128CD415499CE8008B4455 /* README */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README; sourceTree = "<group>"; };
-		7E128CD615499CE8008B4455 /* ofxContourUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxContourUtil.h; sourceTree = "<group>"; };
-		7E128CD715499CE8008B4455 /* ofxCvContourSimplify.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxCvContourSimplify.h; sourceTree = "<group>"; };
 		7E2978E4154788E1005FEFE2 /* util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = util.h; sourceTree = "<group>"; };
 		7E297915154796C1005FEFE2 /* libusb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = libusb.h; sourceTree = "<group>"; };
 		7E297917154796C1005FEFE2 /* XnCommon.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XnCommon.h; sourceTree = "<group>"; };
@@ -473,35 +468,6 @@
 			isa = PBXGroup;
 			children = (
 				7E128BF315498C03008B4455 /* ofxCv.h */,
-			);
-			path = src;
-			sourceTree = "<group>";
-		};
-		7E128CD015499CE8008B4455 /* ofxContourUtil */ = {
-			isa = PBXGroup;
-			children = (
-				7E128CD115499CE8008B4455 /* libs */,
-				7E128CD415499CE8008B4455 /* README */,
-				7E128CD515499CE8008B4455 /* src */,
-			);
-			name = ofxContourUtil;
-			path = ../../../addons/ofxContourUtil;
-			sourceTree = "<group>";
-		};
-		7E128CD115499CE8008B4455 /* libs */ = {
-			isa = PBXGroup;
-			children = (
-				7E128CD215499CE8008B4455 /* convexHull.h */,
-				7E128CD315499CE8008B4455 /* polylineSimplify.h */,
-			);
-			path = libs;
-			sourceTree = "<group>";
-		};
-		7E128CD515499CE8008B4455 /* src */ = {
-			isa = PBXGroup;
-			children = (
-				7E128CD615499CE8008B4455 /* ofxContourUtil.h */,
-				7E128CD715499CE8008B4455 /* ofxCvContourSimplify.h */,
 			);
 			path = src;
 			sourceTree = "<group>";
@@ -872,7 +838,6 @@
 		BB4B014C10F69532006C3DED /* addons */ = {
 			isa = PBXGroup;
 			children = (
-				7E128CD015499CE8008B4455 /* ofxContourUtil */,
 				7E128AB115498C03008B4455 /* ofxCv */,
 				7E297A01154796DE005FEFE2 /* ofxUI */,
 				7E2979F4154796D8005FEFE2 /* ofxXmlSettings */,

@@ -40,24 +40,24 @@ growthRate(0.1) {
         left_arm->grow();
     }
     
-    right_humorous = new twig(-20, ofRandom(min_length, max_length), p_bifurcate, scale, thickness_factor, min_length, max_length, 20);    
+    right_humorous = new twig(10, ofRandom(min_length, max_length), p_bifurcate, scale, thickness_factor, min_length, max_length, 20);    
     while (right_humorous->size() < right_humorous->getMaxSize()) {
         right_humorous->grow();
     }
 
-    left_humorous = new twig(20, ofRandom(min_length, max_length), p_bifurcate, scale, thickness_factor, min_length, max_length, 20);
+    left_humorous = new twig(-10, ofRandom(min_length, max_length), p_bifurcate, scale, thickness_factor, min_length, max_length, 20);
     while (left_humorous->size() < left_humorous->getMaxSize()) {
         left_humorous->grow();
     }
 
-    rshoulder = new twig(ofRandom(20, 50), ofRandom(min_length, max_length),
+    rshoulder = new twig(ofRandom(40, 50), ofRandom(min_length, max_length),
                          p_bifurcate, scale, thickness_factor, min_length,
                          max_length, max_size);
     while (rshoulder->size() < max_size) {
         rshoulder->grow();
     }
     
-    lshoulder = new twig(ofRandom(-50, -20), ofRandom(min_length, max_length),
+    lshoulder = new twig(ofRandom(-50, -40), ofRandom(min_length, max_length),
                          p_bifurcate, scale, thickness_factor, min_length,
                          max_length, max_size);
     while (lshoulder->size() < max_size) {
@@ -125,17 +125,17 @@ void trunk::draw(ofxTrackedUser user) {
     ofPopMatrix();
 
     ofPushMatrix();
-    ofTranslate(user.left_shoulder.position[1].X, user.left_shoulder.position[1].Y);
+    ofTranslate(user.left_shoulder.position[0].X, user.left_shoulder.position[0].Y);
     lshoulder->draw();
     ofPopMatrix();
     
     ofPushMatrix();
-    ofTranslate(user.right_shoulder.position[1].X, user.right_shoulder.position[1].Y);
+    ofTranslate(user.right_shoulder.position[0].X, user.right_shoulder.position[0].Y);
     rshoulder->draw();
     ofPopMatrix();
 
     ofPushMatrix();
-    ofTranslate(user.hip.position[0].X, user.hip.position[0].Y);
+    ofTranslate(user.hip.position[0].X, user.hip.position[0].Y - 18);
     lhip->draw();
     ofPopMatrix();
     
@@ -201,7 +201,7 @@ void trunk::drawTwig(ofxLimb limb, twig *t, bool asLimb) {
         // rotate an additional 90 degress to align the twig with the limb's
         // orientation.
         if (asLimb) {
-            origin = limb.position[0];
+            origin = limb.position[1];
             angle += 90;
         } else {
             origin = limb.position[1];

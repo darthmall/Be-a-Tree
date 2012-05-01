@@ -87,7 +87,7 @@ void twig::grow() {
         float p = ofRandom(1);
         
         if (left == NULL && right == NULL) {
-            twig *growth = new twig(ofRandom(-5, 5), ofRandom(min_length, max_length), p_bifurcate, scale, thickness_factor, min_length, max_length, max_size);
+            twig *growth = new twig(ofRandom(-10, 10), ofRandom(min_length, max_length), p_bifurcate, scale, thickness_factor, min_length, max_length, max_size);
             growth->parent = this;
             
             if (growth->angle < 0) {
@@ -98,7 +98,7 @@ void twig::grow() {
                 right = growth;
             }            
         } else if (p < p_bifurcate && (left == NULL || right == NULL)) {
-            float growth_angle = ofRandom(10, 20);
+            float growth_angle = ofRandom(15, 30);
             twig *growth;
             
             // 50/50 chance to flip the sign on the angle
@@ -237,6 +237,8 @@ int twig::size() {
 }
 
 void twig::clear() {
+    grown = false;
+
     if (left) {
         left->clear();
         delete left;

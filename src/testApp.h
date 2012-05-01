@@ -28,6 +28,9 @@ public:
 
 private:
 
+    bool fullscreen;
+    bool paused;
+
     ofxOpenNIContext context;
     ofxDepthGenerator depthGenerator;
     ofxImageGenerator imageGenerator;

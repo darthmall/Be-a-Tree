@@ -69,8 +69,6 @@ private:
     twig *rhip;
     twig *lshoulder;
     twig *rshoulder;
-    
-    twig *main;
 };
 
 #endif
