@@ -30,6 +30,8 @@ private:
 
     bool fullscreen;
     bool paused;
+    
+    ofxHardwareDriver hardware;
 
     ofxOpenNIContext context;
     ofxDepthGenerator depthGenerator;

@@ -20,7 +20,10 @@ void testApp::setup() {
     filterFactor = 0.1f;
 
     // Playback from a video file for testing
-    context.setupUsingRecording(ofToDataPath("test2.oni"));
+    hardware.setup();
+    
+    context.setup();
+//    context.setupUsingRecording(ofToDataPath("test2.oni"));
     depthGenerator.setup(&context);
     imageGenerator.setup(&context);
     userGenerator.setup(&context);
@@ -52,7 +55,7 @@ void testApp::setup() {
 
 //------------------------------------------------------------
 void testApp::update(){
-    ofBackgroundHex(0x5F6273);
+    ofBackground(255);
     
     if (!paused) {
         context.update();
@@ -90,7 +93,8 @@ void testApp::draw(){
         ofScale(x, x);
     }
     
-    ofSetColor(226, 225, 233);
+//    ofSetColor(226, 225, 233);
+    ofSetColor(255);
     ofRect(0, 0, 640, 480);
     
     if (debug && !fullscreen) {
