@@ -31,6 +31,7 @@ private:
     bool fullscreen;
     bool paused;
     float tx, ty;
+    int smoothing;
     
     ofxHardwareDriver hardware;
 

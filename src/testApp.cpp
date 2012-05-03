@@ -37,6 +37,8 @@ void testApp::setup() {
 
     context.toggleRegisterViewport();
     context.toggleMirror();
+    
+    smoothing = 4;
 
     // Set up GUI for tweaking parameters.
     float canvas_w = ofGetWidth() - 660;
@@ -52,6 +54,7 @@ void testApp::setup() {
     gui->addWidgetDown(new ofxUISlider(widget_w, 10, 0.1, 10, THICKNESS, "THICKNESS FACTOR"));
     gui->addWidgetDown(new ofxUISlider(widget_w, 10, 0.1, 10, SCALE, "THICKNESS SCALE"));
     gui->addWidgetDown(new ofxUISlider(widget_w, 10, 0.1, 10, GROWTH_RATE, "GROWTH RATE"));
+    gui->addWidgetDown(new ofxUISlider(widget_w, 10, 0, 20, smoothing, "SMOOTHING"));
     gui->addWidgetDown(new ofxUISlider(widget_w, 10, 0, depthGenerator.getWidth(), tx, "X TRANSLATION"));
     gui->addWidgetDown(new ofxUISlider(widget_w, 10, 0, depthGenerator.getHeight(), ty, "Y TRANSLATION"));
     ofAddListener(gui->newGUIEvent, this, &testApp::guiEvent);
@@ -146,16 +149,30 @@ void testApp::draw(){
             ofPushStyle();
             ofFill();
             ofSetHexColor(0x2B1702);
-            vector<vector<cv::Point> > contours = contourFinder.getContours();
-            for (int i = 0; i < contours.size(); i++) {
-                vector<cv::Point> contour = contours[i];
-                
-                ofBeginShape();
-                for (int j = 0; j < contour.size(); j++) {
-                    ofVertex(contour[j].x, contour[j].y);
+
+//            vector<vector<cv::Point> > contours = contourFinder.getContours();
+//            for (int i = 0; i < contours.size(); i++) {
+//                vector<cv::Point> contour = contours[i];
+//                
+//                ofBeginShape();
+//                for (int j = 0; j < contour.size(); j++) {
+//                    ofVertex(contour[j].x, contour[j].y);
+//                }
+//                ofEndShape();
+//            }
+            
+            vector<ofPolyline> lines = contourFinder.getPolylines();
+            for (int i = 0; i < lines.size(); i++) {
+                ofPath path;
+                ofPolyline line = lines[i].getSmoothed(smoothing);
+                path.setFillHexColor(0x2B1702);
+                for (int j = 0; j < line.getVertices().size(); j++) {
+                    path.lineTo(line[j].x, line[j].y);
                 }
-                ofEndShape();
+                
+                path.draw();
             }
+            
             ofPopStyle();
         }
     }
@@ -217,6 +234,9 @@ void testApp::guiEvent(ofxUIEventArgs & event) {
         } else if (name == "Y TRANSLATION") {
             ty = value;
             ofLogNotice() << "Y tranlsation: " << value;
+        } else if (name == "SMOOTHING") {
+            smoothing = (int) value;
+            ofLogNotice() << "Smoothing: " << ofToString(value);
         }
     }
 }
