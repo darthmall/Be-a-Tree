@@ -36,41 +36,55 @@ twig::~twig() {
     clear();
 }
 
-void twig::update() {
-    if (grown) {
-        if (left && right) {
-            if (ofRandom(1) < 0.5) {
-                left->update();
+void twig::update(bool shrink) {
+    if (shrink) {
+        if (grown) {
+            if (left && left->grown) {
+                left->update(shrink);
+            } else if (right && right->grown) {
+                right->update(shrink);
+            } else if (blossoms.size() > 0) {
+                blossoms.pop_back();
             } else {
-                right->update();
+                grown = false;
             }
-        } else if (left) {
-            left->update();
-        } else if (right) {
-            right->update();
-        } else if (blossoms.size() < 7) {
-            ofPoint p;
-            p.x = ofRandom(-5, 5);
-            p.y = ofRandom(-5, 3);
-            
-            blossoms.push_back(p);
         }
     } else {
-        grown = true;
-    }
+        if (grown) {
+            if (left && right) {
+                if (ofRandom(1) < 0.5) {
+                    left->update(shrink);
+                } else {
+                    right->update(shrink);
+                }
+            } else if (left) {
+                left->update(shrink);
+            } else if (right) {
+                right->update(shrink);
+            } else if (blossoms.size() < 13) {
+                ofPoint p;
+                p.x = ofRandom(-5, 5);
+                p.y = ofRandom(-5, 3);
+                
+                blossoms.push_back(p);
+            }
+        } else {
+            grown = true;
+        }
 
-    // Calculate the new points for the contour outline of the branch.
-    float base = pow(depth() + 1, scale) / thickness_factor;
-    float tip = pow(depth(), scale) / thickness_factor;
-    
-    contour[0].x = -(base / 2);
-    contour[0].y = 0;
-    contour[1].x = base / 2;
-    contour[1].y = 0;
-    contour[2].x = tip / 2;
-    contour[2].y = -length;
-    contour[3].x = -tip / 2;
-    contour[3].y = -length;
+        // Calculate the new points for the contour outline of the branch.
+        float base = pow(depth() + 1, scale) / thickness_factor;
+        float tip = pow(depth(), scale) / thickness_factor;
+        
+        contour[0].x = -(base / 2);
+        contour[0].y = 0;
+        contour[1].x = base / 2;
+        contour[1].y = 0;
+        contour[2].x = tip / 2;
+        contour[2].y = -length;
+        contour[3].x = -tip / 2;
+        contour[3].y = -length;
+    }
 }
 
 void twig::grow() {

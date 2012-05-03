@@ -32,7 +32,7 @@ public:
     int depth();
     int size();
     
-    void update();
+    void update(bool shrink);
     void append(twig *transplant);
     void concat(twig *transplant);
     twig *find_node_at_depth(int d);

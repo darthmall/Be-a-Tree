@@ -6,7 +6,7 @@
 #define TWIG_MIN_LENGTH 13
 #define TWIG_MAX_LENGTH 25
 #define P_BIFURCATE 0.33
-#define THICKNESS 2.75
+#define THICKNESS 4.5
 #define SCALE 1.5
 
 
@@ -20,15 +20,16 @@ void testApp::setup() {
     filterFactor = 0.1f;
 
     // Playback from a video file for testing
-    hardware.setup();
+//    hardware.setup();
     
-    context.setup();
-//    context.setupUsingRecording(ofToDataPath("test2.oni"));
+//    context.setup();
+    context.setupUsingRecording(ofToDataPath("test2.oni"));
     depthGenerator.setup(&context);
     imageGenerator.setup(&context);
     userGenerator.setup(&context);
     userGenerator.setSmoothing(filterFactor);
     userGenerator.setUseMaskPixels(true);
+    userGenerator.setMaxNumberOfUsers(1);
 
     context.toggleRegisterViewport();
     context.toggleMirror();
@@ -70,9 +71,9 @@ void testApp::update(){
             contourFinder.findContours(mask);
 
             if (armsRaised(*userGenerator.getTrackedUser(1))) {
-                tree->update();            
+                tree->update(false);
             } else {
-                tree->reset();
+                tree->update(true);
             }
         }
     }
@@ -90,10 +91,10 @@ void testApp::draw(){
     
     if (fullscreen) {
         float x = ofGetWindowHeight() / 480.f;
+        ofTranslate((ofGetWindowWidth() - (640.f * x)) / 2.f, 0);
         ofScale(x, x);
     }
     
-//    ofSetColor(226, 225, 233);
     ofSetColor(255);
     ofRect(0, 0, 640, 480);
     

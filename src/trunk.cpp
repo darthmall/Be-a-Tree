@@ -149,20 +149,20 @@ void trunk::grow() {
 
 }
 
-void trunk::update() {
+void trunk::update(bool shrink) {
     float now = ofGetElapsedTimef();
     
     if (now - timestamp >= growthRate) {
         timestamp = now;
-        neck->update();
-        left_humorous->update();
-        right_humorous->update();
-        left_arm->update();
-        right_arm->update();
-        rshoulder->update();
-        lshoulder->update();
-        lhip->update();
-        rhip->update();
+        neck->update(shrink);
+        left_humorous->update(shrink);
+        right_humorous->update(shrink);
+        left_arm->update(shrink);
+        right_arm->update(shrink);
+        rshoulder->update(shrink);
+        lshoulder->update(shrink);
+        lhip->update(shrink);
+        rhip->update(shrink);
     }
 }
 

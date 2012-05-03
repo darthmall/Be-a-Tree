@@ -25,7 +25,7 @@ public:
 
     ~trunk();
 
-    void update();
+    void update(bool shrink);
     void reset();
     void reset(twig *t);
     void grow();
