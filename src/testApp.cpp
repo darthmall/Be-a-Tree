@@ -22,10 +22,10 @@ void testApp::setup() {
     filterFactor = 0.1f;
 
     // Playback from a video file for testing
-    hardware.setup();
+//    hardware.setup();
     
-    context.setup();
-//    context.setupUsingRecording(ofToDataPath("test2.oni"));
+//    context.setup();
+    context.setupUsingRecording(ofToDataPath("test2.oni"));
     depthGenerator.setup(&context);
     imageGenerator.setup(&context);
     userGenerator.setup(&context);

@@ -62,11 +62,8 @@ void twig::update(bool shrink) {
             } else if (right) {
                 right->update(shrink);
             } else if (blossoms.size() < 13) {
-                ofPoint p;
-                p.x = ofRandom(-5, 5);
-                p.y = ofRandom(-5, 3);
-                
-                blossoms.push_back(p);
+                blossoms.push_back(new blossom(ofRandom(-5, 5),
+                                               ofRandom(-5, 3)));
             }
         } else {
             grown = true;
@@ -158,7 +155,7 @@ void twig::draw() {
         ofSetColor(232, 91, 135, 177);
 
         for (int i = 0; i < blossoms.size(); i++) {
-            ofCircle(blossoms[i].x, blossoms[i].y, 4);
+            blossoms[i]->draw();
         }
 
         ofDisableAlphaBlending();
