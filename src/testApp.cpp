@@ -1,6 +1,7 @@
 #include "testApp.h"
 #include "util.h"
 #include <cmath>
+#include <set>
 
 #define TWIG_MAX_SIZE 130
 #define TWIG_MIN_LENGTH 13
@@ -21,16 +22,16 @@ void testApp::setup() {
     filterFactor = 0.1f;
 
     // Playback from a video file for testing
-//    hardware.setup();
+    hardware.setup();
     
-//    context.setup();
-    context.setupUsingRecording(ofToDataPath("test2.oni"));
+    context.setup();
+//    context.setupUsingRecording(ofToDataPath("test2.oni"));
     depthGenerator.setup(&context);
     imageGenerator.setup(&context);
     userGenerator.setup(&context);
     userGenerator.setSmoothing(filterFactor);
     userGenerator.setUseMaskPixels(true);
-    userGenerator.setMaxNumberOfUsers(1);
+//    userGenerator.setMaxNumberOfUsers(1);
 
     context.toggleRegisterViewport();
     context.toggleMirror();
@@ -50,7 +51,7 @@ void testApp::setup() {
     gui->addWidgetDown(new ofxUISlider(widget_w, 10, 0.1, 10, GROWTH_RATE, "GROWTH RATE"));
     ofAddListener(gui->newGUIEvent, this, &testApp::guiEvent);
     
-    tree = new trunk(P_BIFURCATE, SCALE, THICKNESS, TWIG_MIN_LENGTH, TWIG_MAX_LENGTH, TWIG_MAX_SIZE, GROWTH_RATE);
+//    person = new trunk(P_BIFURCATE, SCALE, THICKNESS, TWIG_MIN_LENGTH, TWIG_MAX_LENGTH, TWIG_MAX_SIZE, GROWTH_RATE);
     
     contourFinder.setMinAreaRadius(10);
 	contourFinder.setMaxAreaRadius(150);
@@ -72,10 +73,24 @@ void testApp::update(){
             
             contourFinder.findContours(mask);
 
-            if (armsRaised(*userGenerator.getTrackedUser(1))) {
-                tree->update(false);
-            } else {
-                tree->update(true);
+            set<XnUserID> found;
+            for (int i = 1; i <= userGenerator.getNumberOfTrackedUsers(); i++) {
+                ofxTrackedUser *user = userGenerator.getTrackedUser(i);
+                
+                found.insert(user->id);
+
+                if (!people.count(user->id)) {
+                    people[user->id] = new trunk(P_BIFURCATE, SCALE, THICKNESS, TWIG_MIN_LENGTH, TWIG_MAX_LENGTH, TWIG_MAX_SIZE, GROWTH_RATE);
+                } else {
+                    people[user->id]->update(!armsRaised(*user));
+                }
+            }
+            
+            map<XnUserID, trunk*>::iterator it;
+            for (it = people.begin(); it != people.end(); it++) {
+                if (!found.count((*it).first)) {
+                    (*it).second->reset();
+                }
             }
         }
     }
@@ -83,12 +98,6 @@ void testApp::update(){
 
 //--------------------------------------------------------------
 void testApp::draw(){
-    ofxTrackedUser *user = NULL;
-    
-    if (userGenerator.getNumberOfTrackedUsers() > 0) {
-        user = userGenerator.getTrackedUser(1);
-    }
-    
     ofPushMatrix();
     
     if (fullscreen) {
@@ -107,40 +116,21 @@ void testApp::draw(){
         depthGenerator.draw(0, 0, 640, 480);
         imageGenerator.draw(640, 0, 640, 480);
         
-        if (user) {
-            user->debugDraw();
+        for (int i = 1; i <= userGenerator.getNumberOfTrackedUsers(); i++) {
+            userGenerator.getTrackedUser(i)->debugDraw();
         }
         
         ofPopMatrix();
-        
-        if(user) {
-            user->debugDraw();
-            
-//            float langle = ofRadToDeg(angle(user->left_upper_arm.position[0].X,
-//                                            user->left_upper_arm.position[0].Y,
-//                                            user->left_upper_arm.position[1].X,
-//                                            user->left_upper_arm.position[1].Y,
-//                                            user->left_lower_arm.position[1].X,
-//                                            user->left_lower_arm.position[1].Y));
-//            float rangle = ofRadToDeg(angle(user->right_upper_arm.position[0].X,
-//                                            user->right_upper_arm.position[0].Y,
-//                                            user->right_upper_arm.position[1].X,
-//                                            user->right_upper_arm.position[1].Y,
-//                                            user->right_lower_arm.position[1].X,
-//                                            user->right_lower_arm.position[1].Y));
-            float langle = ofRadToDeg(limbAngle(user->left_upper_arm));
-            float rangle = ofRadToDeg(limbAngle(user->right_upper_arm));
-            
-            ofDrawBitmapString(ofToString(langle), user->left_lower_arm.position[1].X,
-                               user->left_lower_arm.position[1].Y);
-            ofDrawBitmapString(ofToString(rangle), user->right_lower_arm.position[1].X,
-                               user->right_lower_arm.position[1].Y);
-        }
-        
     }
     
     if (userGenerator.getNumberOfTrackedUsers() > 0) {
-        tree->draw(*userGenerator.getTrackedUser(1));
+        for (int i = 1; i <= userGenerator.getNumberOfTrackedUsers(); i++) {
+            ofxTrackedUser *user = userGenerator.getTrackedUser(i);
+            
+            if (people.count(user->id)) {
+                people[user->id]->draw(*user);
+            }
+        }
 
         if (!debug) {
             ofPushStyle();
@@ -152,7 +142,7 @@ void testApp::draw(){
                 
                 ofBeginShape();
                 for (int j = 0; j < contour.size(); j++) {
-                    ofCurveVertex(contour[j].x, contour[j].y);
+                    ofVertex(contour[j].x, contour[j].y);
                 }
                 ofEndShape();
             }
@@ -176,20 +166,24 @@ void testApp::guiEvent(ofxUIEventArgs & event) {
     ofxUISlider *slider = (ofxUISlider *) event.widget;
     float value = slider->getScaledValue();
 
-    if (name == "MIN LENGTH") {
-        tree->setMinLength(value);
-    } else if (name == "MAX LENGTH") {
-        tree->setMaxLength(value);
-    } else if (name == "THICKNESS SCALE") {
-        tree->setScale(value);
-    } else if (name == "THICKNESS FACTOR") {
-        tree->setThicknessFactor(value);
-    } else if (name == "% BIFURCATE") {
-        tree->setPBifurcate(value);
-    } else if (name == "MAX NODES") {
-        tree->setMaxSize(value);
-    } else if (name == "GROWTH RATE") {
-        tree->growthRate = value;
+    for (int i = 1; i < userGenerator.getNumberOfTrackedUsers(); i++) {
+        ofxTrackedUser *user = userGenerator.getTrackedUser(i);
+        
+        if (name == "MIN LENGTH") {
+            people[user->id]->setMinLength(value);
+        } else if (name == "MAX LENGTH") {
+            people[user->id]->setMaxLength(value);
+        } else if (name == "THICKNESS SCALE") {
+            people[user->id]->setScale(value);
+        } else if (name == "THICKNESS FACTOR") {
+            people[user->id]->setThicknessFactor(value);
+        } else if (name == "% BIFURCATE") {
+            people[user->id]->setPBifurcate(value);
+        } else if (name == "MAX NODES") {
+            people[user->id]->setMaxSize(value);
+        } else if (name == "GROWTH RATE") {
+            people[user->id]->growthRate = value;
+        }
     }
 }
 
