@@ -10,7 +10,6 @@
 #define treeTest_twig_h
 
 #include "ofMain.h"
-#include "blossom.h"
 #include <cmath>
 
 class twig {
@@ -81,7 +80,7 @@ protected:
     
     twig *find_node_at_depth(int d, int current_depth);
     
-    vector<blossom *> blossoms;
+    vector<ofPoint> blossoms;
 };
 
 
