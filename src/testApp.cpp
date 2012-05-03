@@ -24,10 +24,10 @@ void testApp::setup() {
     filterFactor = 0.1f;
 
     // Playback from a video file for testing
-    hardware.setup();
+//    hardware.setup();
     
-    context.setup();
-//    context.setupUsingRecording(ofToDataPath("test2.oni"));
+//    context.setup();
+    context.setupUsingRecording(ofToDataPath("test2.oni"));
     depthGenerator.setup(&context);
     depthGenerator.setDepthThreshold(0, 0, 10);
     imageGenerator.setup(&context);
@@ -145,7 +145,7 @@ void testApp::draw(){
         if (!debug) {
             ofPushStyle();
             ofFill();
-            ofSetHexColor(0x292E36);
+            ofSetHexColor(0x2B1702);
             vector<vector<cv::Point> > contours = contourFinder.getContours();
             for (int i = 0; i < contours.size(); i++) {
                 vector<cv::Point> contour = contours[i];
@@ -238,8 +238,10 @@ void testApp::keyPressed(int key){
             fullscreen = !fullscreen;
             if (fullscreen) {
                 gui->disable();
+                ofHideCursor();
             } else {
                 gui->enable();
+                ofShowCursor();
             }
             ofSetFullscreen(fullscreen);
             break;

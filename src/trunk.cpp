@@ -122,7 +122,7 @@ trunk::~trunk() {
 void trunk::draw(ofxTrackedUser user) {
     ofPushStyle();
     ofFill();
-    ofSetHexColor(0x292E36);
+    ofSetHexColor(0x2B1702);
     
     float angle = limbAngle(user.left_upper_arm);
     float l = ofDist(user.left_upper_arm.position[0].X,
