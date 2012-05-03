@@ -27,6 +27,7 @@ void testApp::setup() {
     context.setup();
 //    context.setupUsingRecording(ofToDataPath("test2.oni"));
     depthGenerator.setup(&context);
+    depthGenerator.setDepthThreshold(0, 0, 10);
     imageGenerator.setup(&context);
     userGenerator.setup(&context);
     userGenerator.setSmoothing(filterFactor);
@@ -56,6 +57,8 @@ void testApp::setup() {
     
     titleFont.loadFont("Chunk.ttf", 76, true, true);
     subtitleFont.loadFont("Chunk.ttf", 34, true, true);
+    
+    splash.loadImage("be_a_tree_splash.tif");
 }
 
 //------------------------------------------------------------
@@ -68,6 +71,8 @@ void testApp::update(){
         imageGenerator.update();
         userGenerator.update();
         
+        displayInstructions = true;
+
         if (userGenerator.getNumberOfTrackedUsers() > 0) {
             ofImage mask;
             mask.setFromPixels(userGenerator.getUserPixels(), 640, 480, OF_IMAGE_GRAYSCALE);
@@ -83,7 +88,12 @@ void testApp::update(){
                 if (!people.count(user->id)) {
                     people[user->id] = new trunk(P_BIFURCATE, SCALE, THICKNESS, TWIG_MIN_LENGTH, TWIG_MAX_LENGTH, TWIG_MAX_SIZE, GROWTH_RATE);
                 } else {
-                    people[user->id]->update(!armsRaised(*user));
+                    bool growing = armsRaised(*user);
+                    people[user->id]->update(!growing);
+                    
+                    if (displayInstructions) {
+                        displayInstructions = !growing;
+                    }
                 }
             }
             
@@ -156,17 +166,19 @@ void testApp::draw(){
     ofPopMatrix();
     
     if (userGenerator.getNumberOfTrackedUsers() < 1) {
+        splash.draw((ofGetWindowWidth() - splash.width) / 2.f,
+                    ofGetWindowHeight() - splash.height);
         ofRectangle titleBox = titleFont.getStringBoundingBox("Be A Tree", 0, 0);
         ofRectangle subtitleBox = subtitleFont.getStringBoundingBox("(Try raising your arms)", 0, 0);
         float x = (ofGetWindowWidth() - (titleBox.width)) / 2.f;
-        float y = (ofGetWindowHeight() - (titleBox.height)) / 2.f;
+        float y = (ofGetWindowHeight() - (titleBox.height)) / 4.f;
         
-        ofSetHexColor(0x292E36);
-        titleFont.drawString("Be A Tree", x, y);
-        
+        ofSetHexColor(0x910E2A);
+
+        titleFont.drawString("Be A Tree", x, y);        
         x = (ofGetWindowWidth() - (subtitleBox.width)) / 2.f;
         y += subtitleBox.height;
-        
+
         subtitleFont.drawString("(Try raising your arms)", x, y);
     }
 }

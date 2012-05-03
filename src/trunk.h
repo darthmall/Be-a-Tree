@@ -60,6 +60,7 @@ private:
     float max_size;
     float scale;
 
+    twig *head;
     twig *neck;
     twig *right_humorous;
     twig *left_humorous;

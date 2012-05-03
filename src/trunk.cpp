@@ -25,6 +25,11 @@ min_length(min_length),
 max_length(max_length),
 max_size(max_size),
 growthRate(growth_rate) {
+    
+    head = new twig(ofRandom(-5, 5), ofRandom(min_length, max_length), p_bifurcate, scale, thickness_factor, min_length, max_length, max_size);
+    while (head->size() < max_size) {
+        head->grow();
+    }
 
     neck = new twig(ofRandom(15, 40), ofRandom(min_length, max_length), p_bifurcate, scale, thickness_factor, min_length, max_length, max_size);
     while (neck->size() < max_size) {
@@ -83,8 +88,35 @@ growthRate(growth_rate) {
 }
 
 trunk::~trunk() {
+    delete head;
+    head = NULL;
+
+    delete neck;
+    neck = NULL;
+
+    delete right_humorous;
+    right_humorous = NULL;
+
+    delete left_humorous;
+    left_humorous = NULL;
+
     delete left_arm;
+    left_arm = NULL;
+
     delete right_arm;
+    right_arm = NULL;
+
+    delete lhip;
+    lhip = NULL;
+
+    delete rhip;
+    rhip = NULL;
+
+    delete lshoulder;
+    lshoulder = NULL;
+
+    delete rshoulder;
+    rshoulder = NULL;
 }
 
 void trunk::draw(ofxTrackedUser user) {
@@ -117,13 +149,26 @@ void trunk::draw(ofxTrackedUser user) {
     right_humorous->draw();
     ofPopMatrix();
 
+    angle = limbAngle(user.neck);
+    l = ofDist(user.neck.position[0].X,
+               user.neck.position[0].Y,
+               user.neck.position[1].X,
+               user.neck.position[1].Y);
+    
+    ofPushMatrix();
+    ofTranslate(user.neck.position[0].X + ((l / 2.f) * cos(angle)),
+                user.neck.position[0].Y + ((l / 2.f) * sin(angle)));
+    ofRotate(ofRadToDeg(angle) - 90);
+    head->draw();
+    ofPopMatrix();
+
     drawTwig(user.left_lower_arm, left_arm, true);
     drawTwig(user.right_lower_arm, right_arm, true);
     
-    ofPushMatrix();
-    ofTranslate(user.neck.position[1].X, user.neck.position[1].Y);
-    neck->draw();
-    ofPopMatrix();
+//    ofPushMatrix();
+//    ofTranslate(user.neck.position[1].X, user.neck.position[1].Y);
+//    neck->draw();
+//    ofPopMatrix();
 
     ofPushMatrix();
     ofTranslate(user.left_shoulder.position[0].X, user.left_shoulder.position[0].Y);
@@ -157,6 +202,7 @@ void trunk::update(bool shrink) {
     
     if (dt >= diff) {
         timestamp = now;
+        head->update(shrink);
         neck->update(shrink);
         left_humorous->update(shrink);
         right_humorous->update(shrink);
@@ -170,6 +216,7 @@ void trunk::update(bool shrink) {
 }
 
 void trunk::reset() {
+    reset(head);
     reset(neck);
     reset(rshoulder);
     reset(lshoulder);
@@ -223,6 +270,10 @@ void trunk::drawTwig(ofxLimb limb, twig *t, bool asLimb) {
 void trunk::setPBifurcate(float p) {
     p_bifurcate = p;
     
+    if (head) {
+        head->setPBifurcate(p);
+    }
+    
     if (neck) {
         neck->setPBifurcate(p);
     }
@@ -262,6 +313,10 @@ void trunk::setPBifurcate(float p) {
 
 void trunk::setThicknessFactor(float factor) {
     thickness_factor = factor;
+    
+    if (head) {
+        head->setThicknessFactor(factor);
+    }
     
     if (neck) {
         neck->setThicknessFactor(factor);
@@ -303,6 +358,10 @@ void trunk::setThicknessFactor(float factor) {
 void trunk::setMinLength(float l) {
     min_length = l;
     
+    if (head) {
+        head->setMinLength(l);
+    }
+    
     if (neck) {
         neck->setMinLength(l);
     }
@@ -342,6 +401,10 @@ void trunk::setMinLength(float l) {
 
 void trunk::setMaxLength(float l) {
     max_length = l;
+    
+    if (head) {
+        head->setMaxLength(l);
+    }
     
     if (neck) {
         neck->setMaxLength(l);
@@ -383,6 +446,10 @@ void trunk::setMaxLength(float l) {
 void trunk::setMaxSize(float s) {
     max_size = s;
     
+    if (head) {
+        head->setMaxSize(s);
+    }
+
     if (neck) {
         neck->setMaxSize(s);
     }
@@ -422,6 +489,10 @@ void trunk::setMaxSize(float s) {
 
 void trunk::setScale(float s) {
     scale = s;
+    
+    if (head) {
+        head->setScale(s);
+    }
     
     if (neck) {
         neck->setScale(s);

@@ -30,6 +30,8 @@ private:
 
     bool fullscreen;
     bool paused;
+    bool displayInstructions;
+    float timeSinceArmsRaised;
     
     ofxHardwareDriver hardware;
 
@@ -44,7 +46,6 @@ private:
     float filterFactor;
 
     map<XnUserID, trunk*> people;
-//    trunk* person;
 
     // Debug stuff
     bool debug;
@@ -54,6 +55,7 @@ private:
     
     ofTrueTypeFont titleFont;
     ofTrueTypeFont subtitleFont;
+    ofImage splash;
 };
 
 #endif
