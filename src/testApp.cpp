@@ -8,6 +8,7 @@
 #define P_BIFURCATE 0.33
 #define THICKNESS 4.5
 #define SCALE 1.5
+#define GROWTH_RATE 0.2
 
 
 //--------------------------------------------------------------
@@ -46,9 +47,10 @@ void testApp::setup() {
     gui->addWidgetDown(new ofxUISlider(widget_w, 10, 5, 30, TWIG_MAX_LENGTH, "MAX LENGTH"));
     gui->addWidgetDown(new ofxUISlider(widget_w, 10, 0.1, 10, THICKNESS, "THICKNESS FACTOR"));
     gui->addWidgetDown(new ofxUISlider(widget_w, 10, 0.1, 10, SCALE, "THICKNESS SCALE"));
+    gui->addWidgetDown(new ofxUISlider(widget_w, 10, 0.1, 10, GROWTH_RATE, "GROWTH RATE"));
     ofAddListener(gui->newGUIEvent, this, &testApp::guiEvent);
     
-    tree = new trunk(P_BIFURCATE, SCALE, THICKNESS, TWIG_MIN_LENGTH, TWIG_MAX_LENGTH, TWIG_MAX_SIZE);
+    tree = new trunk(P_BIFURCATE, SCALE, THICKNESS, TWIG_MIN_LENGTH, TWIG_MAX_LENGTH, TWIG_MAX_SIZE, GROWTH_RATE);
     
     contourFinder.setMinAreaRadius(10);
 	contourFinder.setMaxAreaRadius(150);
@@ -164,7 +166,7 @@ bool testApp::armsRaised(ofxTrackedUser user) {
     float rangle = ofRadToDeg(limbAngle(user.right_upper_arm));
     
     return (langle == langle && rangle == rangle &&
-            langle > -20  && rangle < 20);
+            langle > -30  && rangle < 30);
 }
 
 void testApp::guiEvent(ofxUIEventArgs & event) {
@@ -184,6 +186,8 @@ void testApp::guiEvent(ofxUIEventArgs & event) {
         tree->setPBifurcate(value);
     } else if (name == "MAX NODES") {
         tree->setMaxSize(value);
+    } else if (name == "GROWTH RATE") {
+        tree->growthRate = value;
     }
 }
 

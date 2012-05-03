@@ -16,14 +16,15 @@ trunk::trunk(float p_bifurcate,
              float thickness_factor,
              float min_length,
              float max_length,
-             float max_size) :
+             float max_size,
+             float growth_rate) :
 p_bifurcate(p_bifurcate),
 scale(scale),
 thickness_factor(thickness_factor),
 min_length(min_length),
 max_length(max_length),
 max_size(max_size),
-growthRate(0.1) {
+growthRate(growth_rate) {
 
     neck = new twig(ofRandom(15, 40), ofRandom(min_length, max_length), p_bifurcate, scale, thickness_factor, min_length, max_length, max_size);
     while (neck->size() < max_size) {
@@ -151,8 +152,11 @@ void trunk::grow() {
 
 void trunk::update(bool shrink) {
     float now = ofGetElapsedTimef();
+    float diff = (shrink) ? (growthRate / 3.f) : growthRate;
+    float dt = now - timestamp;
     
-    if (now - timestamp >= growthRate) {
+    ofLogNotice() << ofToString(now) << ", " << ofToString(timestamp) << ", " << ofToString(diff) << ", " << ofToString(dt);
+    if (dt >= diff) {
         timestamp = now;
         neck->update(shrink);
         left_humorous->update(shrink);

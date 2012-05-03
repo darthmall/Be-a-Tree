@@ -43,6 +43,7 @@ private:
     // For the user generator
     float filterFactor;
 
+//    map<XnUserID, trunk> people;
     trunk *tree;
 
     // Debug stuff

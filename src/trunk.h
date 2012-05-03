@@ -21,7 +21,8 @@ public:
           float thickness_factor,
           float min_length,
           float max_length,
-          float max_size);
+          float max_size,
+          float growth_rate);
 
     ~trunk();
 
