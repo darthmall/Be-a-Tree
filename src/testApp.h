@@ -30,8 +30,7 @@ private:
 
     bool fullscreen;
     bool paused;
-    bool displayInstructions;
-    float timeSinceArmsRaised;
+    float tx, ty;
     
     ofxHardwareDriver hardware;
 

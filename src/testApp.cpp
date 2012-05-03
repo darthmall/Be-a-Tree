@@ -17,6 +17,8 @@ void testApp::setup() {
     ofSetLogLevel(OF_LOG_NOTICE);
     debug = false;
     fullscreen = false;
+    tx = 0.f;
+    ty = 0.f;
 
     // Set up and configure the Kinect
     filterFactor = 0.1f;
@@ -50,6 +52,8 @@ void testApp::setup() {
     gui->addWidgetDown(new ofxUISlider(widget_w, 10, 0.1, 10, THICKNESS, "THICKNESS FACTOR"));
     gui->addWidgetDown(new ofxUISlider(widget_w, 10, 0.1, 10, SCALE, "THICKNESS SCALE"));
     gui->addWidgetDown(new ofxUISlider(widget_w, 10, 0.1, 10, GROWTH_RATE, "GROWTH RATE"));
+    gui->addWidgetDown(new ofxUISlider(widget_w, 10, 0, depthGenerator.getWidth(), tx, "X TRANSLATION"));
+    gui->addWidgetDown(new ofxUISlider(widget_w, 10, 0, depthGenerator.getHeight(), ty, "Y TRANSLATION"));
     ofAddListener(gui->newGUIEvent, this, &testApp::guiEvent);
     
     contourFinder.setMinAreaRadius(10);
@@ -71,8 +75,6 @@ void testApp::update(){
         imageGenerator.update();
         userGenerator.update();
         
-        displayInstructions = true;
-
         if (userGenerator.getNumberOfTrackedUsers() > 0) {
             ofImage mask;
             mask.setFromPixels(userGenerator.getUserPixels(), 640, 480, OF_IMAGE_GRAYSCALE);
@@ -90,10 +92,6 @@ void testApp::update(){
                 } else {
                     bool growing = armsRaised(*user);
                     people[user->id]->update(!growing);
-                    
-                    if (displayInstructions) {
-                        displayInstructions = !growing;
-                    }
                 }
             }
             
@@ -113,8 +111,8 @@ void testApp::draw(){
     float scale = 1.f;
     
     if (fullscreen) {
-        scale = ofGetWindowHeight() / 480.f;
-        ofTranslate((ofGetWindowWidth() - (640.f * scale)) / 2.f, 0);
+        scale = ofGetWindowWidth() / (depthGenerator.getWidth() - 40.f);
+        ofTranslate(-80.f, -90.f);
         ofScale(scale, scale);
     }
     
@@ -213,6 +211,12 @@ void testApp::guiEvent(ofxUIEventArgs & event) {
             people[user->id]->setMaxSize(value);
         } else if (name == "GROWTH RATE") {
             people[user->id]->growthRate = value;
+        } else if (name == "X TRANSLATION") {
+            tx = value;
+            ofLogNotice() << "X translation: " << value;
+        } else if (name == "Y TRANSLATION") {
+            ty = value;
+            ofLogNotice() << "Y tranlsation: " << value;
         }
     }
 }
