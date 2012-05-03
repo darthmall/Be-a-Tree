@@ -30,8 +30,7 @@ void testApp::setup() {
     imageGenerator.setup(&context);
     userGenerator.setup(&context);
     userGenerator.setSmoothing(filterFactor);
-    userGenerator.setUseMaskPixels(true);
-//    userGenerator.setMaxNumberOfUsers(1);
+    userGenerator.setUseMaskPixels(false);
 
     context.toggleRegisterViewport();
     context.toggleMirror();
