@@ -51,6 +51,9 @@ private:
     ofxUICanvas *gui;
 
     bool armsRaised(ofxTrackedUser user);
+    
+    ofTrueTypeFont titleFont;
+    ofTrueTypeFont subtitleFont;
 };
 
 #endif

@@ -38,6 +38,7 @@ void testApp::setup() {
     // Set up GUI for tweaking parameters.
     float canvas_w = ofGetWidth() - 660;
     float widget_w = canvas_w - OFX_UI_GLOBAL_WIDGET_SPACING * 2;
+
     gui = new ofxUICanvas(650, 10, canvas_w, 460);
     gui->setColorBack(0x5F6273);
     gui->addWidgetDown(new ofxUILabel("Be A Tree Console", OFX_UI_FONT_LARGE));
@@ -50,10 +51,11 @@ void testApp::setup() {
     gui->addWidgetDown(new ofxUISlider(widget_w, 10, 0.1, 10, GROWTH_RATE, "GROWTH RATE"));
     ofAddListener(gui->newGUIEvent, this, &testApp::guiEvent);
     
-//    person = new trunk(P_BIFURCATE, SCALE, THICKNESS, TWIG_MIN_LENGTH, TWIG_MAX_LENGTH, TWIG_MAX_SIZE, GROWTH_RATE);
-    
     contourFinder.setMinAreaRadius(10);
 	contourFinder.setMaxAreaRadius(150);
+    
+    titleFont.loadFont("Chunk.ttf", 76, true, true);
+    subtitleFont.loadFont("Chunk.ttf", 34, true, true);
 }
 
 //------------------------------------------------------------
@@ -98,11 +100,12 @@ void testApp::update(){
 //--------------------------------------------------------------
 void testApp::draw(){
     ofPushMatrix();
+    float scale = 1.f;
     
     if (fullscreen) {
-        float x = ofGetWindowHeight() / 480.f;
-        ofTranslate((ofGetWindowWidth() - (640.f * x)) / 2.f, 0);
-        ofScale(x, x);
+        scale = ofGetWindowHeight() / 480.f;
+        ofTranslate((ofGetWindowWidth() - (640.f * scale)) / 2.f, 0);
+        ofScale(scale, scale);
     }
     
     ofSetColor(255);
@@ -148,8 +151,24 @@ void testApp::draw(){
             ofPopStyle();
         }
     }
-    
+
+
     ofPopMatrix();
+    
+    if (userGenerator.getNumberOfTrackedUsers() < 1) {
+        ofRectangle titleBox = titleFont.getStringBoundingBox("Be A Tree", 0, 0);
+        ofRectangle subtitleBox = subtitleFont.getStringBoundingBox("(Try raising your arms)", 0, 0);
+        float x = (ofGetWindowWidth() - (titleBox.width)) / 2.f;
+        float y = (ofGetWindowHeight() - (titleBox.height)) / 2.f;
+        
+        ofSetHexColor(0x292E36);
+        titleFont.drawString("Be A Tree", x, y);
+        
+        x = (ofGetWindowWidth() - (subtitleBox.width)) / 2.f;
+        y += subtitleBox.height;
+        
+        subtitleFont.drawString("(Try raising your arms)", x, y);
+    }
 }
 
 bool testApp::armsRaised(ofxTrackedUser user) {
