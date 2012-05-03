@@ -56,6 +56,7 @@ private:
     ofTrueTypeFont titleFont;
     ofTrueTypeFont subtitleFont;
     ofImage splash;
+    ofImage background;
 };
 
 #endif

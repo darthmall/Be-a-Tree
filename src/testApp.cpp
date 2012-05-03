@@ -23,11 +23,10 @@ void testApp::setup() {
     // Set up and configure the Kinect
     filterFactor = 0.1f;
 
-    // Playback from a video file for testing
-//    hardware.setup();
+    hardware.setup();
     
-//    context.setup();
-    context.setupUsingRecording(ofToDataPath("test2.oni"));
+    context.setup();
+//    context.setupUsingRecording(ofToDataPath("test2.oni"));
     depthGenerator.setup(&context);
     depthGenerator.setDepthThreshold(0, 0, 10);
     imageGenerator.setup(&context);
@@ -65,7 +64,8 @@ void testApp::setup() {
     titleFont.loadFont("Chunk.ttf", 76, true, true);
     subtitleFont.loadFont("Chunk.ttf", 34, true, true);
     
-    splash.loadImage("be_a_tree_splash.tif");
+    splash.loadImage("be_a_tree_splash.png");
+    background.loadImage("background.png");
 }
 
 //------------------------------------------------------------
@@ -110,17 +110,23 @@ void testApp::update(){
 
 //--------------------------------------------------------------
 void testApp::draw(){
+    if (userGenerator.getNumberOfTrackedUsers() > 0) {
+        ofColor start, end;
+        start.set(255);
+        end.setHex(0x5F6273);
+        ofBackgroundGradient(start, end);
+    } else {
+        ofSetBackgroundColor(255);
+    }
+
     ofPushMatrix();
     float scale = 1.f;
     
     if (fullscreen) {
         scale = ofGetWindowWidth() / (depthGenerator.getWidth() - 40.f);
-        ofTranslate(-80.f, -90.f);
+        ofTranslate(-80.f, 0.f);
         ofScale(scale, scale);
     }
-    
-    ofSetColor(255);
-    ofRect(0, 0, 640, 480);
     
     if (debug && !fullscreen) {
         ofPushMatrix();
@@ -146,21 +152,6 @@ void testApp::draw(){
         }
 
         if (!debug) {
-            ofPushStyle();
-            ofFill();
-            ofSetHexColor(0x2B1702);
-
-//            vector<vector<cv::Point> > contours = contourFinder.getContours();
-//            for (int i = 0; i < contours.size(); i++) {
-//                vector<cv::Point> contour = contours[i];
-//                
-//                ofBeginShape();
-//                for (int j = 0; j < contour.size(); j++) {
-//                    ofVertex(contour[j].x, contour[j].y);
-//                }
-//                ofEndShape();
-//            }
-            
             vector<ofPolyline> lines = contourFinder.getPolylines();
             for (int i = 0; i < lines.size(); i++) {
                 ofPath path;
@@ -172,8 +163,6 @@ void testApp::draw(){
                 
                 path.draw();
             }
-            
-            ofPopStyle();
         }
     }
 
@@ -181,6 +170,7 @@ void testApp::draw(){
     ofPopMatrix();
     
     if (userGenerator.getNumberOfTrackedUsers() < 1) {
+        ofPushStyle();
         splash.draw((ofGetWindowWidth() - splash.width) / 2.f,
                     ofGetWindowHeight() - splash.height);
         ofRectangle titleBox = titleFont.getStringBoundingBox("Be A Tree", 0, 0);
@@ -195,6 +185,7 @@ void testApp::draw(){
         y += subtitleBox.height;
 
         subtitleFont.drawString("(Try raising your arms)", x, y);
+        ofPopStyle();
     }
 }
 

@@ -189,6 +189,8 @@ void trunk::draw(ofxTrackedUser user) {
     ofTranslate(user.hip.position[1].X, user.hip.position[1].Y - 20);
     rhip->draw();
     ofPopMatrix();
+    
+    ofPopStyle();
 }
 
 void trunk::grow() {
