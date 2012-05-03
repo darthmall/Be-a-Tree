@@ -28,6 +28,7 @@ public:
 
 private:
 
+    bool showSplash;
     bool fullscreen;
     bool paused;
     float tx, ty;

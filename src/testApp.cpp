@@ -17,6 +17,7 @@ void testApp::setup() {
     ofSetLogLevel(OF_LOG_NOTICE);
     debug = false;
     fullscreen = false;
+    showSplash = true;
     tx = 0.f;
     ty = 0.f;
 
@@ -31,6 +32,7 @@ void testApp::setup() {
     depthGenerator.setDepthThreshold(0, 0, 10);
     imageGenerator.setup(&context);
     userGenerator.setup(&context);
+    userGenerator.setMaxNumberOfUsers(2);
     userGenerator.setSmoothing(filterFactor);
     userGenerator.setUseMaskPixels(false);
 
@@ -87,14 +89,17 @@ void testApp::update(){
             set<XnUserID> found;
             for (int i = 1; i <= userGenerator.getNumberOfTrackedUsers(); i++) {
                 ofxTrackedUser *user = userGenerator.getTrackedUser(i);
+                showSplash = (showSplash && !user->skeletonCalibrated);
                 
-                found.insert(user->id);
+                if (user->skeletonTracking) {
+                    found.insert(user->id);
 
-                if (!people.count(user->id)) {
-                    people[user->id] = new trunk(P_BIFURCATE, SCALE, THICKNESS, TWIG_MIN_LENGTH, TWIG_MAX_LENGTH, TWIG_MAX_SIZE, GROWTH_RATE);
-                } else {
-                    bool growing = armsRaised(*user);
-                    people[user->id]->update(!growing);
+                    if (!people.count(user->id)) {
+                        people[user->id] = new trunk(P_BIFURCATE, SCALE, THICKNESS, TWIG_MIN_LENGTH, TWIG_MAX_LENGTH, TWIG_MAX_SIZE, GROWTH_RATE);
+                    } else {
+                        bool growing = armsRaised(*user);
+                        people[user->id]->update(!growing);
+                    }
                 }
             }
             
@@ -104,13 +109,15 @@ void testApp::update(){
                     (*it).second->reset();
                 }
             }
+        } else {
+            showSplash = true;
         }
     }
 }
 
 //--------------------------------------------------------------
 void testApp::draw(){
-    if (userGenerator.getNumberOfTrackedUsers() > 0) {
+    if (!showSplash) {
         ofColor start, end;
         start.set(255);
         end.setHex(0x5F6273);
@@ -151,7 +158,7 @@ void testApp::draw(){
             }
         }
 
-        if (!debug) {
+        if (!debug && !showSplash) {
             vector<ofPolyline> lines = contourFinder.getPolylines();
             for (int i = 0; i < lines.size(); i++) {
                 ofPath path;
@@ -169,7 +176,7 @@ void testApp::draw(){
 
     ofPopMatrix();
     
-    if (userGenerator.getNumberOfTrackedUsers() < 1) {
+    if (showSplash) {
         ofPushStyle();
         splash.draw((ofGetWindowWidth() - splash.width) / 2.f,
                     ofGetWindowHeight() - splash.height);
