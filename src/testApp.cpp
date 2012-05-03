@@ -8,7 +8,7 @@
 #define P_BIFURCATE 0.33
 #define THICKNESS 4.5
 #define SCALE 1.5
-#define GROWTH_RATE 0.2
+#define GROWTH_RATE 0.1
 
 
 //--------------------------------------------------------------
@@ -116,18 +116,20 @@ void testApp::draw(){
         if(user) {
             user->debugDraw();
             
-            float langle = ofRadToDeg(angle(user->left_upper_arm.position[0].X,
-                                            user->left_upper_arm.position[0].Y,
-                                            user->left_upper_arm.position[1].X,
-                                            user->left_upper_arm.position[1].Y,
-                                            user->left_lower_arm.position[1].X,
-                                            user->left_lower_arm.position[1].Y));
-            float rangle = ofRadToDeg(angle(user->right_upper_arm.position[0].X,
-                                            user->right_upper_arm.position[0].Y,
-                                            user->right_upper_arm.position[1].X,
-                                            user->right_upper_arm.position[1].Y,
-                                            user->right_lower_arm.position[1].X,
-                                            user->right_lower_arm.position[1].Y));
+//            float langle = ofRadToDeg(angle(user->left_upper_arm.position[0].X,
+//                                            user->left_upper_arm.position[0].Y,
+//                                            user->left_upper_arm.position[1].X,
+//                                            user->left_upper_arm.position[1].Y,
+//                                            user->left_lower_arm.position[1].X,
+//                                            user->left_lower_arm.position[1].Y));
+//            float rangle = ofRadToDeg(angle(user->right_upper_arm.position[0].X,
+//                                            user->right_upper_arm.position[0].Y,
+//                                            user->right_upper_arm.position[1].X,
+//                                            user->right_upper_arm.position[1].Y,
+//                                            user->right_lower_arm.position[1].X,
+//                                            user->right_lower_arm.position[1].Y));
+            float langle = ofRadToDeg(limbAngle(user->left_upper_arm));
+            float rangle = ofRadToDeg(limbAngle(user->right_upper_arm));
             
             ofDrawBitmapString(ofToString(langle), user->left_lower_arm.position[1].X,
                                user->left_lower_arm.position[1].Y);
@@ -166,7 +168,7 @@ bool testApp::armsRaised(ofxTrackedUser user) {
     float rangle = ofRadToDeg(limbAngle(user.right_upper_arm));
     
     return (langle == langle && rangle == rangle &&
-            langle > -30  && rangle < 30);
+            langle > 110  && rangle < 30);
 }
 
 void testApp::guiEvent(ofxUIEventArgs & event) {

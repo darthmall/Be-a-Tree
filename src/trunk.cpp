@@ -136,12 +136,12 @@ void trunk::draw(ofxTrackedUser user) {
     ofPopMatrix();
 
     ofPushMatrix();
-    ofTranslate(user.hip.position[0].X, user.hip.position[0].Y - 18);
+    ofTranslate(user.hip.position[0].X, user.hip.position[0].Y - 38);
     lhip->draw();
     ofPopMatrix();
     
     ofPushMatrix();
-    ofTranslate(user.hip.position[1].X, user.hip.position[1].Y);
+    ofTranslate(user.hip.position[1].X, user.hip.position[1].Y - 20);
     rhip->draw();
     ofPopMatrix();
 }
@@ -155,7 +155,6 @@ void trunk::update(bool shrink) {
     float diff = (shrink) ? (growthRate / 3.f) : growthRate;
     float dt = now - timestamp;
     
-    ofLogNotice() << ofToString(now) << ", " << ofToString(timestamp) << ", " << ofToString(diff) << ", " << ofToString(dt);
     if (dt >= diff) {
         timestamp = now;
         neck->update(shrink);
