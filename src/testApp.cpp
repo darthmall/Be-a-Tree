@@ -24,15 +24,15 @@ void testApp::setup() {
     // Set up and configure the Kinect
     filterFactor = 0.1f;
 
-    hardware.setup();
+//    hardware.setup();
     
-    context.setup();
-//    context.setupUsingRecording(ofToDataPath("test2.oni"));
+//    context.setup();
+    context.setupUsingRecording(ofToDataPath("test2.oni"));
     depthGenerator.setup(&context);
     depthGenerator.setDepthThreshold(0, 0, 10);
     imageGenerator.setup(&context);
     userGenerator.setup(&context);
-    userGenerator.setMaxNumberOfUsers(2);
+    userGenerator.setMaxNumberOfUsers(1);
     userGenerator.setSmoothing(filterFactor);
     userGenerator.setUseMaskPixels(false);
 
@@ -68,6 +68,8 @@ void testApp::setup() {
     
     splash.loadImage("be_a_tree_splash.png");
     background.loadImage("background.png");
+    
+    person = new trunk(P_BIFURCATE, SCALE, THICKNESS, TWIG_MIN_LENGTH, TWIG_MAX_LENGTH, TWIG_MAX_SIZE, GROWTH_RATE);
 }
 
 //------------------------------------------------------------
@@ -86,29 +88,33 @@ void testApp::update(){
             
             contourFinder.findContours(mask);
 
-            set<XnUserID> found;
-            for (int i = 1; i <= userGenerator.getNumberOfTrackedUsers(); i++) {
-                ofxTrackedUser *user = userGenerator.getTrackedUser(i);
-                showSplash = (showSplash && !user->skeletonCalibrated);
-                
-                if (user->skeletonTracking) {
-                    found.insert(user->id);
-
-                    if (!people.count(user->id)) {
-                        people[user->id] = new trunk(P_BIFURCATE, SCALE, THICKNESS, TWIG_MIN_LENGTH, TWIG_MAX_LENGTH, TWIG_MAX_SIZE, GROWTH_RATE);
-                    } else {
-                        bool growing = armsRaised(*user);
-                        people[user->id]->update(!growing);
-                    }
-                }
-            }
+            ofxTrackedUser *user = userGenerator.getTrackedUser(1);
+            showSplash = !user->skeletonCalibrated;
+            person->update(!armsRaised(*user));
             
-            map<XnUserID, trunk*>::iterator it;
-            for (it = people.begin(); it != people.end(); it++) {
-                if (!found.count((*it).first)) {
-                    (*it).second->reset();
-                }
-            }
+//            set<XnUserID> found;
+//            for (int i = 1; i <= userGenerator.getNumberOfTrackedUsers(); i++) {
+//                ofxTrackedUser *user = userGenerator.getTrackedUser(i);
+//                showSplash = (showSplash && !user->skeletonCalibrated);
+//                
+//                if (user->skeletonTracking) {
+//                    found.insert(user->id);
+//
+//                    if (!people.count(user->id)) {
+//                        people[user->id] = new trunk(P_BIFURCATE, SCALE, THICKNESS, TWIG_MIN_LENGTH, TWIG_MAX_LENGTH, TWIG_MAX_SIZE, GROWTH_RATE);
+//                    } else {
+//                        bool growing = armsRaised(*user);
+//                        people[user->id]->update(!growing);
+//                    }
+//                }
+//            }
+//            
+//            map<XnUserID, trunk*>::iterator it;
+//            for (it = people.begin(); it != people.end(); it++) {
+//                if (!found.count((*it).first)) {
+//                    (*it).second->reset();
+//                }
+//            }
         } else {
             showSplash = true;
         }
@@ -135,7 +141,7 @@ void testApp::draw(){
         ofScale(scale, scale);
     }
     
-    if (debug && !fullscreen) {
+    if (debug) {
         ofPushMatrix();
         ofTranslate(0, 490);
         ofScale(0.5f, 0.5f);
@@ -147,23 +153,36 @@ void testApp::draw(){
         }
         
         ofPopMatrix();
+        
+        for (int i = 1; i <= userGenerator.getNumberOfTrackedUsers(); i++) {
+            userGenerator.getTrackedUser(i)->debugDraw();
+        }
     }
     
     if (userGenerator.getNumberOfTrackedUsers() > 0) {
-        for (int i = 1; i <= userGenerator.getNumberOfTrackedUsers(); i++) {
-            ofxTrackedUser *user = userGenerator.getTrackedUser(i);
-            
-            if (people.count(user->id)) {
-                people[user->id]->draw(*user);
-            }
-        }
+        ofxTrackedUser *user = userGenerator.getTrackedUser(1);
+        person->draw(*user);
+//        for (int i = 1; i <= userGenerator.getNumberOfTrackedUsers(); i++) {
+//            ofxTrackedUser *user = userGenerator.getTrackedUser(i);
+//            
+//            if (people.count(user->id)) {
+//                people[user->id]->draw(*user);
+//            }
+//        }
 
-        if (!debug && !showSplash) {
+        if (!showSplash) {
             vector<ofPolyline> lines = contourFinder.getPolylines();
             for (int i = 0; i < lines.size(); i++) {
                 ofPath path;
                 ofPolyline line = lines[i].getSmoothed(smoothing);
-                path.setFillHexColor(0x2B1702);
+                
+                if (debug) {
+                    path.setFilled(false);
+                    path.setHexColor(0x2B1702);
+                } else {
+                    path.setFillHexColor(0x2B1702);
+                }
+                
                 for (int j = 0; j < line.getVertices().size(); j++) {
                     path.lineTo(line[j].x, line[j].y);
                 }
@@ -209,34 +228,34 @@ void testApp::guiEvent(ofxUIEventArgs & event) {
     ofxUISlider *slider = (ofxUISlider *) event.widget;
     float value = slider->getScaledValue();
 
-    for (int i = 1; i < userGenerator.getNumberOfTrackedUsers(); i++) {
-        ofxTrackedUser *user = userGenerator.getTrackedUser(i);
-        
-        if (name == "MIN LENGTH") {
-            people[user->id]->setMinLength(value);
-        } else if (name == "MAX LENGTH") {
-            people[user->id]->setMaxLength(value);
-        } else if (name == "THICKNESS SCALE") {
-            people[user->id]->setScale(value);
-        } else if (name == "THICKNESS FACTOR") {
-            people[user->id]->setThicknessFactor(value);
-        } else if (name == "% BIFURCATE") {
-            people[user->id]->setPBifurcate(value);
-        } else if (name == "MAX NODES") {
-            people[user->id]->setMaxSize(value);
-        } else if (name == "GROWTH RATE") {
-            people[user->id]->growthRate = value;
-        } else if (name == "X TRANSLATION") {
-            tx = value;
-            ofLogNotice() << "X translation: " << value;
-        } else if (name == "Y TRANSLATION") {
-            ty = value;
-            ofLogNotice() << "Y tranlsation: " << value;
-        } else if (name == "SMOOTHING") {
-            smoothing = (int) value;
-            ofLogNotice() << "Smoothing: " << ofToString(value);
-        }
-    }
+//    for (int i = 1; i < userGenerator.getNumberOfTrackedUsers(); i++) {
+//        ofxTrackedUser *user = userGenerator.getTrackedUser(i);
+//        
+//        if (name == "MIN LENGTH") {
+//            people[user->id]->setMinLength(value);
+//        } else if (name == "MAX LENGTH") {
+//            people[user->id]->setMaxLength(value);
+//        } else if (name == "THICKNESS SCALE") {
+//            people[user->id]->setScale(value);
+//        } else if (name == "THICKNESS FACTOR") {
+//            people[user->id]->setThicknessFactor(value);
+//        } else if (name == "% BIFURCATE") {
+//            people[user->id]->setPBifurcate(value);
+//        } else if (name == "MAX NODES") {
+//            people[user->id]->setMaxSize(value);
+//        } else if (name == "GROWTH RATE") {
+//            people[user->id]->growthRate = value;
+//        } else if (name == "X TRANSLATION") {
+//            tx = value;
+//            ofLogNotice() << "X translation: " << value;
+//        } else if (name == "Y TRANSLATION") {
+//            ty = value;
+//            ofLogNotice() << "Y tranlsation: " << value;
+//        } else if (name == "SMOOTHING") {
+//            smoothing = (int) value;
+//            ofLogNotice() << "Smoothing: " << ofToString(value);
+//        }
+//    }
 }
 
 //--------------------------------------------------------------
